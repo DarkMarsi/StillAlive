@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Still Alive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="terminal">
+        <!-- Время (самый верх) -->
+        <div class="time-display">
+            ВРЕМЯ: 00:00 | ДЕНЬ 1
+        </div>
+
+        <!-- Верхний блок: сообщения слева, шкалы+радар справа -->
+        <div class="top-section">
+            <!-- Левая колонка: экран + поле ввода -->
+            <div class="left-column">
+                <!-- Экран с сообщениями -->
+                <div class="screen" id="screen">
+                    > СИСТЕМА ЗАПУЩЕНА...
+                    > ДОБРО ПОЖАЛОВАТЬ НА БОРТ
+                    > НАЖМИ КНОПКУ ДЛЯ НАЧАЛА
+                </div>
+                
+                <!-- Поле ввода сообщений -->
+                <div class="input-area">
+                    <span class="input-prompt">></span>
+                    <input type="text" id="message-input" class="message-input" placeholder="введите сообщение...">
+                    <button class="send-btn" id="send-btn">➤</button>
+                </div>
+            </div>
+
+            <!-- Правый блок: шкалы и приборы -->
+            <div class="right-panel">
+                <!-- Шкалы ресурсов (4 штуки) -->
+                <div class="gauges-panel">
+                    <div class="gauge">
+                        <div class="gauge-label">ТОПЛИВО</div>
+                        <div class="gauge-bar-bg">
+                            <div class="gauge-bar-fill" id="fuel-gauge" style="width: 100%;"></div>
+                        </div>
+                        <div class="gauge-value" id="fuel-value">100%</div>
+                    </div>
+                    
+                    <div class="gauge">
+                        <div class="gauge-label">КИСЛОРОД</div>
+                        <div class="gauge-bar-bg">
+                            <div class="gauge-bar-fill" id="oxygen-gauge" style="width: 100%;"></div>
+                        </div>
+                        <div class="gauge-value" id="oxygen-value">100%</div>
+                    </div>
+                    
+                    <div class="gauge">
+                        <div class="gauge-label">БАТАРЕЯ</div>
+                        <div class="gauge-bar-bg">
+                            <div class="gauge-bar-fill" id="battery-gauge" style="width: 100%;"></div>
+                        </div>
+                        <div class="gauge-value" id="battery-value">100%</div>
+                    </div>
+                    
+                    <div class="gauge">
+                        <div class="gauge-label">КОРПУС</div>
+                        <div class="gauge-bar-bg">
+                            <div class="gauge-bar-fill" id="hull-gauge" style="width: 100%;"></div>
+                        </div>
+                        <div class="gauge-value" id="hull-value">100%</div>
+                    </div>
+                </div>
+
+                <!-- Блок с радаром и круглыми приборами -->
+                <div class="instruments-panel">
+                    <!-- Радар (слева, большой) -->
+                    <div class="sonar-container">
+                        <div class="sonar-title">РАДАР</div>
+                        <div class="sonar-screen">
+                            <canvas id="sonar-canvas" width="160" height="160"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Сетка круглых приборов 2x2 -->
+                    <div class="instruments-grid">
+                        <!-- Компас -->
+                        <div class="mini-round">
+                            <div class="mini-title">КУРС</div>
+                            <div class="mini-screen">
+                                <canvas id="compass-canvas" width="50" height="50"></canvas>
+                            </div>
+                            <div class="mini-value" id="compass-value">0°</div>
+                        </div>
+                        
+                        <!-- Скорость -->
+                        <div class="mini-round">
+                            <div class="mini-title">СКОР</div>
+                            <div class="mini-screen">
+                                <canvas id="speed-canvas" width="50" height="50"></canvas>
+                            </div>
+                            <div class="mini-value" id="speed-value">0</div>
+                        </div>
+                        
+                        <!-- Глубина -->
+                        <div class="mini-round">
+                            <div class="mini-title">ГЛУБ</div>
+                            <div class="mini-screen">
+                                <canvas id="depth-canvas" width="50" height="50"></canvas>
+                            </div>
+                            <div class="mini-value" id="depth-value">0</div>
+                        </div>
+                        
+                        <!-- Давление -->
+                        <div class="mini-round">
+                            <div class="mini-title">ДАВЛ</div>
+                            <div class="mini-screen">
+                                <canvas id="pressure-instrument-canvas" width="50" height="50"></canvas>
+                            </div>
+                            <div class="mini-value" id="pressure-instrument-value">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Панель вкладок (ПОД приборами) -->
+                <div class="tabs-panel">
+                    <button class="tab-btn" id="tab-terminal" title="Терминал">📟</button>
+                    <button class="tab-btn" id="tab-inventory" title="Инвентарь">🎒</button>
+                    <button class="tab-btn" id="tab-modules" title="Модули">🔧</button>
+                    <button class="tab-btn" id="tab-signals" title="Входящие сигналы">📡</button>
+                    <button class="tab-btn" id="tab-map" title="Карта">🗺️</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Нижний блок: кнопки слева, рычаги по середине, индикаторы справа -->
+        <div class="bottom-section">
+            <!-- ЛЕВАЯ СЕКЦИЯ: все кнопки -->
+            <div class="buttons-section">
+                <!-- Группа 1: квадратные 1,2,3 -->
+                <div class="button-group">
+                    <button class="square-btn" id="lever1">1</button>
+                    <button class="square-btn" id="lever2">2</button>
+                    <button class="square-btn" id="lever3">3</button>
+                </div>
+                
+                <!-- Группа 2: круглые I,II,III -->
+                <div class="button-group">
+                    <button class="round-btn" id="lever4">I</button>
+                    <button class="round-btn" id="lever5">II</button>
+                    <button class="round-btn" id="lever6">III</button>
+                </div>
+                
+                <!-- Группа 3: квадратные A,B,C -->
+                <div class="button-group">
+                    <button class="square-btn" id="leverA">A</button>
+                    <button class="square-btn" id="leverB">B</button>
+                    <button class="square-btn" id="leverC">C</button>
+                </div>
+                
+                <!-- Кнопка сброса -->
+                <button class="reset-btn" id="reset-btn">✖</button>
+                
+                <!-- Кнопки управления курсом -->
+                <button class="heading-btn" id="heading-left">⬅️</button>
+                <button class="heading-btn" id="heading-right">➡️</button>
+            </div>
+
+            <!-- СРЕДНЯЯ СЕКЦИЯ: рычаги (тумблеры) -->
+            <div class="throttle-section">
+                <div class="throttle-group">
+                    <div class="throttle-label">ДВИГАТЕЛЬ</div>
+                    <div class="throttle-control">
+                        <button class="throttle-btn" id="throttle-engine-up">▲</button>
+                        <div class="throttle-position" id="throttle-engine-pos">⏺</div>
+                        <button class="throttle-btn" id="throttle-engine-down">▼</button>
+                    </div>
+                    <div class="throttle-speed" id="throttle-engine-value">0</div>
+                </div>
+                
+                <div class="throttle-group">
+                    <div class="throttle-label">БАЛЛАСТ</div>
+                    <div class="throttle-control">
+                        <button class="throttle-btn" id="throttle-ballast-up">▲</button>
+                        <div class="throttle-position" id="throttle-ballast-pos">⏺</div>
+                        <button class="throttle-btn" id="throttle-ballast-down">▼</button>
+                    </div>
+                    <div class="throttle-depth" id="throttle-ballast-effect">0</div>
+                </div>
+            </div>
+            
+            <!-- ПРАВАЯ СЕКЦИЯ: индикаторы -->
+            <div class="indicators-panel">
+                <div class="indicator" id="engine-indicator">
+                    <span class="indicator-light">🔴</span>
+                    <span class="indicator-label">ДВИГ</span>
+                </div>
+                <div class="indicator" id="sonar-indicator">
+                    <span class="indicator-light">🔴</span>
+                    <span class="indicator-label">СОНАР</span>
+                </div>
+                <div class="indicator" id="reactor-indicator">
+                    <span class="indicator-light">🔴</span>
+                    <span class="indicator-label">РЕАКТ</span>
+                </div>
+                <!-- НОВЫЙ ИНДИКАТОР СТЕЛС -->
+                <div class="indicator" id="stealth-indicator">
+                    <span class="indicator-light">👁️</span>
+                    <span class="indicator-label">СТЕЛС</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="inventory.js"></script>
+    <script src="signals.js"></script>
+    <script src="map.js"></script>
+    <script src="modules.js"></script>
+    <script src="ui.js"></script>
+    <script src="modules-system.js"></script>
+    <script src="throttle.js"></script>
+    <script src="navigation.js"></script>
+    <script src="radar.js"></script>
+</body>
+</html>

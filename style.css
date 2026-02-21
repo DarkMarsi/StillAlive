@@ -1,0 +1,1620 @@
+/* Обнуляем отступы */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: black;
+    font-family: 'Courier New', monospace;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Главный контейнер игры */
+.terminal {
+    width: 950px;  /* было 1000px */
+    height: 750px; /* было 700px */
+    max-width: 95%;
+    max-height: 90vh;
+    background-color: #0a0a0a;
+    border: 2px solid #5f874a;
+    padding: 15px;
+    color: #5f874a;
+    box-shadow: 0 0 20px rgba(95, 135, 74, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Время */
+.time-display {
+    text-align: right;
+    padding: 5px;
+    border-bottom: 1px dashed #5f874a;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Верхняя секция (сообщения + правый блок) - занимает 4 части */
+.top-section {
+    display: flex;
+    gap: 15px;
+    flex: 4;  /* было 3, увеличили */
+    min-height: 0;
+}
+
+/* Экран с сообщениями (слева) */
+.screen {
+    flex: 2;
+    background-color: #000000;
+    border: 1px solid #5f874a;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+
+/* Правый блок (шкалы + радар) */
+.right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;  /* было 15px, стало 8px */
+    min-height: 0;
+    max-width: 280px;
+    min-width: 220px;
+}
+
+/* Панель шкал */
+.gauges-panel {
+    background-color: #0a0a0a;
+    border: 1px solid #5f874a;
+    padding: 8px;  /* было 10-12px, стало 8px */
+    display: flex;
+    flex-direction: column;
+    gap: 6px;  /* было 8px, стало 6px */
+}
+
+/* Одна шкала */
+.gauge {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.gauge-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.gauge-bar-bg {
+    width: 100%;
+    height: 18px;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+}
+
+.gauge-bar-fill {
+    height: 100%;
+    background-color: #5f874a;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.gauge-value {
+    font-size: 12px;
+    text-align: right;
+}
+
+/* Давление красным */
+#pressure-gauge {
+    background-color: #b84a4a;
+}
+
+/* Радар */
+.sonar-container {
+    background-color: #0a0a0a;
+    border: 1px solid #0a0a0a;
+    padding: 3px;  /* было 15px, стало 8px */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.sonar-title {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.sonar-screen {
+    width: 180px;  /* было 180px, уменьшил */
+    height: 180px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    border: none;
+}
+
+#sonar-canvas {
+    width: 170px;  /* было 170px */
+    height: 170px;
+    display: block;
+    background-color: black;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 2px solid #5f874a;
+}
+
+/* Нижняя секция (кнопки + индикаторы) - занимает 1 часть */
+.bottom-section {
+    display: flex;
+    gap: 15px;
+    flex: 1;
+    border-top: 1px solid #5f874a;
+    padding-top: 10px;
+    margin-top: 5px;
+    align-items: center;
+    min-height: 70px;
+}
+
+/* ЛЕВАЯ ЧАСТЬ: все кнопки - делаем шире */
+.buttons-section {
+    flex: 3;  /* увеличили с 2 до 3 */
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Группа кнопок */
+.button-group {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+/* Квадратные кнопки */
+.square-btn {
+    width: 36px;
+    height: 36px;
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+/* Круглые кнопки */
+.round-btn {
+    width: 36px;
+    height: 36px;
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Кнопка сброса */
+.reset-btn {
+    width: 36px;
+    height: 36px;
+    background-color: #1a1a1a;
+    border: 2px solid #b84a4a;
+    color: #b84a4a;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+/* Кнопки управления курсом */
+.heading-btn {
+    width: 36px;
+    height: 36px;
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+/* Эффекты при наведении */
+.square-btn:hover, 
+.round-btn:hover, 
+.heading-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 10px #5f874a;
+}
+
+.reset-btn:hover {
+    background-color: #b84a4a;
+    color: black;
+    box-shadow: 0 0 10px #b84a4a;
+}
+
+/* СРЕДНЯЯ ЧАСТЬ: рычаги (тумблеры) */
+.throttle-section {
+    display: flex;
+    gap: 15px;  /* уменьшили с 20px до 15px */
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;  /* уменьшили с 15px до 10px */
+    border-left: 1px solid #5f874a;
+    border-right: 1px solid #5f874a;
+}
+
+.throttle-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 55px;  /* уменьшили с 60px до 55px */
+}
+
+.throttle-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #5f874a;
+    letter-spacing: 1px;
+}
+
+.throttle-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.throttle-btn {
+    width: 28px;  /* уменьшили с 30px до 28px */
+    height: 28px;  /* уменьшили с 30px до 28px */
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-size: 12px;  /* уменьшили с 14px до 12px */
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.throttle-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 10px #5f874a;
+}
+
+.throttle-position {
+    width: 28px;  /* уменьшили с 30px до 28px */
+    height: 12px;  /* уменьшили с 10px до 8px */
+    text-align: center;
+    font-size: 10px;  /* уменьшили с 12px до 10px */
+    line-height: 12px;
+    color: #8bc34a;
+}
+
+.throttle-speed, 
+.throttle-depth {
+    font-size: 8px;  /* уменьшили с 10px до 8px */
+    color: #5f874a;
+    margin-top: 1px;  /* уменьшили с 2px до 1px */
+    min-width: 45px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+/* ПРАВАЯ ЧАСТЬ: индикаторы */
+.indicators-panel {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 5px;
+    background-color: #0a0a0a;
+    border: 1px solid #0a0a0a;
+    min-width: 160px;
+}
+
+.indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    min-width: 45px;
+}
+
+.indicator-light {
+    font-size: 18px;
+}
+
+.indicator-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Скроллбар для экрана */
+.screen::-webkit-scrollbar {
+    width: 8px;
+}
+
+.screen::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-left: 1px solid #5f874a;
+}
+
+.screen::-webkit-scrollbar-thumb {
+    background: #5f874a;
+    border: 1px solid #0f0f0f;
+}
+
+/* Мигающий курсор */
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+.terminal::after {
+    content: "_";
+    animation: blink 1s infinite;
+    align-self: flex-start;
+}
+
+/* Дополнительные правки */
+.sonar-title {
+    font-size: 12px;  /* меньше надпись */
+    margin-bottom: 0;
+}
+
+.gauge-bar-bg {
+    height: 8px;  /* тоньше шкалы */
+}
+
+.gauge-value {
+    font-size: 11px;  /* меньше цифры */
+}
+
+/* Левая колонка (экран + поле ввода) */
+.left-column {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+}
+
+/* Поле ввода */
+.input-area {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: #0a0a0a;
+    border: 1px solid #5f874a;
+    padding: 5px 10px;
+    flex-shrink: 0;
+}
+
+.input-prompt {
+    color: #5f874a;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.message-input {
+    flex: 1;
+    background-color: black;
+    border: none;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    outline: none;
+    padding: 5px;
+}
+
+.message-input::placeholder {
+    color: #2a4a2a;
+}
+
+.send-btn {
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    color: #5f874a;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.send-btn:hover {
+    background-color: #5f874a;
+    color: black;
+}
+
+/* Убираем мигающий курсор */
+.terminal::after {
+    display: none;
+}
+
+/* Панель кнопок */
+.control-panel {
+    flex: 2;
+    display: flex;
+    gap: 15px;
+    min-width: 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Группа кнопок */
+.button-group {
+    display: flex;
+    gap: 5px;  /* расстояние между кнопками внутри группы */
+    align-items: center;
+}
+
+/* Квадратные кнопки - чуть меньше */
+.square-btn {
+    width: 36px;  /* было 40px */
+    height: 36px; /* было 40px */
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;  /* чуть меньше */
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+/* Круглые кнопки - чуть меньше */
+.round-btn {
+    width: 36px;  /* было 40px */
+    height: 36px; /* было 40px */
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;  /* чуть меньше */
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+/* Кнопка сброса */
+.reset-btn {
+    width: 36px;
+    height: 36px;
+    background-color: #1a1a1a;
+    border: 2px solid #b84a4a;
+    color: #b84a4a;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;  /* чуть меньше */
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin-left: 5px;
+}
+
+/* Эффекты при наведении */
+.square-btn:hover, .round-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 10px #5f874a;
+}
+
+.reset-btn:hover {
+    background-color: #b84a4a;
+    color: black;
+    box-shadow: 0 0 10px #b84a4a;
+}
+
+/* Удаляем старые стили .btn и .small-btn */
+.btn, .small-btn {
+    display: none;  /* или просто удали их из файла */
+}
+
+/* Панель кнопок - уменьшаем отступы */
+.control-panel {
+    flex: 3;
+    display: flex;
+    gap: 25px;  /* было 40px, уменьшили */
+    min-width: 0;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Увеличиваем высоту шкал */
+.gauge-bar-bg {
+    height: 24px;  /* было 8px */
+}
+
+/* Немного уменьшаем отступы, чтобы компенсировать высоту */
+.gauges-panel {
+    gap: 8px;
+    padding: 10px;
+}
+
+/* Укороченные подписи для индикаторов */
+.indicator-label {
+    font-size: 8px;
+}
+
+/* Для римских цифр на круглых кнопках */
+.round-btn {
+    font-size: 16px;  /* чуть меньше, чтобы I, II, III лучше влезали */
+}
+
+/* Панель вкладок */
+.tabs-panel {
+    display: flex;
+    justify-content: space-between;
+    gap: 3px;  /* было 5px */
+    margin-top: 0;  /* убрал верхний отступ */
+    padding: 5px;  /* было 8px */
+    background-color: #0a0a0a;
+    border: 1px solid #0a0a0a;
+}
+
+/* Кнопки-вкладки */
+.tab-btn {
+    width: 40px;
+    height: 40px;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    color: #5f874a;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.tab-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 8px #5f874a;
+}
+
+/* Активная вкладка (будем подсвечивать) */
+.tab-btn.active {
+    background-color: #5f874a;
+    color: black;
+    border-color: #8bc34a;
+}
+
+/* Схема модулей */
+.modules-scheme {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 400px;  /* уменьшил с 500px */
+    background-color: #0a0a0a;
+    border: 1px solid #5f874a;
+    padding: 5px;
+    overflow: hidden;
+}
+
+/* Карточка модуля - ещё меньше */
+.module-card {
+    position: absolute;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;  /* была 2px */
+    padding: 2px 2px;
+    min-width: 35px;    /* было 40px */
+    text-align: center;
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(95, 135, 74, 0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+    font-size: 8px;     /* общий размер шрифта */
+}
+
+.module-card:hover {
+    background-color: #2a2a2a;
+    border-color: #8bc34a;
+    transform: scale(1.02);
+}
+
+.module-name {
+    font-size: 8px;      /* уменьшил */
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #5f874a;
+    margin-bottom: 1px;
+    white-space: nowrap;
+}
+
+.module-health {
+    font-size: 10px;    /* было 12px */
+    font-weight: bold;
+    color: #5f874a;
+    text-shadow: 0 0 3px #5f874a;
+}
+
+/* Линии SVG */
+.modules-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.modules-lines line {
+    stroke: #8bc34a;     /* более светлый зелёный */
+    stroke-width: 1.5;    /* чуть толще */
+    stroke-dasharray: 5,3;  /* пунктирные линии */
+    opacity: 0.8;         /* более видимые */
+}
+
+/* Чтобы карточки были поверх линий */
+.module-card {
+    z-index: 2;
+}
+
+/* Контейнер для меню модуля */
+.module-menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* Само меню */
+.module-menu {
+    position: absolute;
+    background-color: #0a0a0a;
+    border: 2px solid #5f874a;
+    border-radius: 4px;
+    padding: 15px;
+    min-width: 220px;
+    box-shadow: 0 0 30px rgba(95, 135, 74, 0.7);
+    pointer-events: auto;
+    z-index: 1001;
+    color: #5f874a;
+}
+
+/* Заголовок меню */
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #5f874a;
+}
+
+.menu-title {
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.menu-close {
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.menu-close:hover {
+    color: #b84a4a;
+}
+
+/* Здоровье модуля */
+.menu-health {
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-align: center;
+    padding: 5px;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+}
+
+/* Разделитель */
+.menu-divider {
+    height: 1px;
+    background-color: #5f874a;
+    margin: 10px 0;
+    opacity: 0.3;
+}
+
+/* Элементы меню */
+.menu-item {
+    padding: 8px 12px;
+    margin: 4px 0;
+    border: 1px solid #5f874a;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 13px;
+}
+
+.menu-item:hover:not(.disabled) {
+    background-color: #5f874a;
+    color: black;
+}
+
+.menu-item.disabled {
+    opacity: 0.3;
+    border-color: #4a4a4a;
+    color: #6a6a6a;
+    cursor: not-allowed;
+}
+
+.menu-item.disabled:hover {
+    background-color: transparent;
+}
+
+/* Яркая надпись "нет доступных модулей" */
+.menu-item.unavailable {
+    color: #8bc34a;        /* яркий зелёный */
+    border-color: #0a0a0a;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 1;
+    cursor: default;
+}
+
+.menu-item.unavailable:hover {
+    background-color: transparent;
+    color: #8bc34a;
+    border-color: #0a0a0a;
+}
+
+/* Стили для списка сигналов */
+.signals-list {
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.signals-header {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.signals-divider {
+    height: 1px;
+    background-color: #5f874a;
+    margin: 10px 0;
+    opacity: 0.3;
+}
+
+.signal-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;        /* чуть уменьшил */
+    margin: 0;            /* было margin: 5px 0, убрал */
+    border: 1px solid #5f874a;
+    border-top: none;     /* чтобы не было двойных границ */
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: #0a0a0a;
+}
+
+/* Добавляем границу сверху только для первого элемента */
+.signal-item:first-child {
+    border-top: 1px solid #5f874a;
+}
+
+/* Убираем двойные границы между письмами */
+.signal-item + .signal-item {
+    border-top: none;
+}
+
+.signal-item:hover {
+    background-color: #1a1a1a;
+    border-color: #8bc34a;
+    transform: translateX(5px);
+}
+
+.signal-item.unread {
+    border-left: 4px solid #8bc34a;
+    background-color: #0f1a0f;
+}
+
+.signal-status {
+    margin-right: 10px;
+    font-size: 16px;
+    min-width: 20px;
+}
+
+.signal-item.unread .signal-status {
+    color: #8bc34a;
+}
+
+.signal-title {
+    flex: 1;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.signal-time {
+    font-size: 11px;
+    opacity: 0.7;
+    white-space: nowrap;
+    margin-left: 10px;
+}
+
+/* Стили для окна сигнала */
+.signal-message-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.signal-message {
+    position: absolute;
+    background-color: #0a0a0a;
+    border: 2px solid #5f874a;
+    border-radius: 4px;
+    padding: 20px;
+    min-width: 350px;
+    max-width: 500px;
+    box-shadow: 0 0 30px rgba(95, 135, 74, 0.7);
+    pointer-events: auto;
+    z-index: 1001;
+    color: #5f874a;
+}
+
+.signal-message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #5f874a;
+}
+
+.signal-message-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.signal-message-close {
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.signal-message-close:hover {
+    color: #b84a4a;
+}
+
+.signal-message-info {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 15px;
+    text-align: right;
+}
+
+.signal-message-divider {
+    height: 1px;
+    background-color: #5f874a;
+    margin: 15px 0;
+    opacity: 0.3;
+}
+
+.signal-message-body {
+    font-size: 14px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+/* Сетка инвентаря */
+.inventory-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.inventory-row {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+
+/* Ячейка инвентаря */
+.inventory-cell {
+    width: 45px;          /* чуть больше */
+    height: 45px;         /* чуть больше */
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    border-radius: 4px;
+    transition: all 0.2s;
+    display: flex;         /* центрируем содержимое */
+    align-items: center;   /* по вертикали */
+    justify-content: center; /* по горизонтали */
+    font-size: 24px;       /* крупные иконки */
+    cursor: pointer;
+}
+
+.inventory-cell:hover {
+    background-color: #2a2a2a;
+    border-color: #8bc34a;
+    box-shadow: 0 0 8px #5f874a;
+}
+
+/* Стилизация скроллбара для списка сигналов */
+.signals-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.signals-list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-left: 1px solid #5f874a;
+}
+
+.signals-list::-webkit-scrollbar-thumb {
+    background: #5f874a;
+    border: 1px solid #0f0f0f;
+    border-radius: 4px;
+}
+
+.signals-list::-webkit-scrollbar-thumb:hover {
+    background: #8bc34a;
+}
+
+/* Для Firefox */
+.signals-list {
+    scrollbar-width: thin;
+    scrollbar-color: #5f874a #1a1a1a;
+}
+
+/* Стилизация скроллбара для инвентаря */
+.inventory-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.inventory-grid::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-left: 1px solid #5f874a;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb {
+    background: #5f874a;
+    border: 1px solid #0f0f0f;
+    border-radius: 4px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb:hover {
+    background: #8bc34a;
+}
+
+/* Для Firefox */
+.inventory-grid {
+    scrollbar-width: thin;
+    scrollbar-color: #5f874a #1a1a1a;
+}
+
+/* Меню предмета инвентаря */
+.item-menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.item-menu {
+    position: absolute;
+    background-color: #0a0a0a;
+    border: 2px solid #5f874a;
+    border-radius: 4px;
+    padding: 10px;
+    min-width: 180px;
+    box-shadow: 0 0 20px rgba(95, 135, 74, 0.7);
+    pointer-events: auto;
+    z-index: 1001;
+    color: #5f874a;
+}
+
+.item-menu .menu-header {
+    font-size: 14px;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #5f874a;
+}
+
+.item-menu .menu-item {
+    padding: 6px 10px;
+    margin: 2px 0;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid #5f874a;
+    transition: all 0.2s;
+}
+
+.item-menu .menu-item:hover {
+    background-color: #5f874a;
+    color: black;
+}
+
+/* Стили для журнала и записки */
+.journal-content, .note-content {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.journal-content p, .note-content p {
+    margin: 5px 0;
+}
+
+.journal-content::-webkit-scrollbar,
+.note-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.journal-content::-webkit-scrollbar-track,
+.note-content::-webkit-scrollbar-track {
+    background: #1a1a1a;
+    border-left: 1px solid #5f874a;
+}
+
+.journal-content::-webkit-scrollbar-thumb,
+.note-content::-webkit-scrollbar-thumb {
+    background: #5f874a;
+    border: 1px solid #0f0f0f;
+    border-radius: 4px;
+}
+
+/* Стили для карты */
+.map-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px;
+    background-color: #0a0a0a;
+    border: 1px solid #5f874a;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.map-row {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    justify-content: center;
+}
+
+.header-row {
+    margin-bottom: 5px;
+}
+
+.map-corner {
+    width: 30px;
+    height: 30px;
+}
+
+.map-header {
+    width: 40px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #5f874a;
+    text-transform: uppercase;
+}
+
+.map-row-label {
+    width: 30px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #5f874a;
+}
+
+.map-tile {
+    width: 40px;
+    height: 40px;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.map-tile.current {
+    background-color: #2a5f2a;
+    border-color: #8bc34a;
+    color: #8bc34a;
+    text-shadow: 0 0 5px #8bc34a;
+}
+
+.map-tile.visited {
+    background-color: #1a2a1a;
+    color: #5f874a;
+}
+
+.map-tile.discovered {
+    background-color: #1a1a1a;
+    color: #5f874a;
+}
+
+.map-tile.undiscovered {
+    background-color: #0a0a0a;
+    color: #2a4a2a;
+    border-color: #2a4a2a;
+}
+
+.map-tile:hover {
+    background-color: #2a2a2a;
+    border-color: #8bc34a;
+}
+
+.map-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid #5f874a;
+}
+
+.map-btn {
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    color: #5f874a;
+    padding: 8px 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.map-btn:hover {
+    background-color: #5f874a;
+    color: black;
+}
+
+
+/* Кнопки управления курсом - чуть меньше */
+.heading-btn {
+    width: 36px;  /* было 40px */
+    height: 36px; /* было 40px */
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-size: 18px;  /* чуть меньше */
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    margin-left: 5px;
+}
+
+.heading-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 10px #5f874a;
+}
+
+/* Панель приборов (радар + вертикальные мини-приборы) */
+.instruments-panel {
+    display: flex;
+    gap: 8px;
+    background-color: #0a0a0a;
+    border: 1px solid #0a0a0a;
+    padding: 8px;
+}
+
+/* Радар (слева) */
+.instruments-panel .sonar-container {
+    flex: 2;
+    border: none;
+    padding: 0;
+}
+
+.instruments-panel .sonar-screen {
+    width: 140px;
+    height: 140px;
+}
+
+.instruments-panel #sonar-canvas {
+    width: 130px;
+    height: 130px;
+}
+
+/* Вертикальный ряд мини-приборов */
+.vertical-instruments {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: space-between;
+}
+
+/* Мини-круглый прибор */
+.mini-round {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #0a0a0a;
+    border: 1px solid #0a0a0a;
+    padding: 3px;
+}
+
+.mini-title {
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5f874a;
+    margin-bottom: 1px;
+}
+
+.mini-screen {
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.mini-screen canvas {
+    width: 40px;
+    height: 40px;
+    display: block;
+    background-color: black;
+    border-radius: 50%;
+    border: 1px solid #5f874a;
+}
+
+
+.mini-value {
+    font-size: 8px;
+    margin-top: 1px;
+    color: #5f874a;
+    text-align: center;
+}
+
+/* Сетка круглых приборов 2x2 */
+.instruments-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 4px;
+}
+
+/* Обновляем стили для мини-приборов в сетке */
+.instruments-grid .mini-round {
+    margin: 0;
+    width: auto;
+}
+
+/* Убираем старый вертикальный стиль */
+.vertical-instruments {
+    display: none;
+}
+
+/* Выравнивание вкладок и поля ввода */
+.top-section {
+    align-items: stretch;  /* чтобы колонки были одинаковой высоты */
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.screen {
+    flex: 1;  /* экран занимает всё доступное место */
+    min-height: 0;
+}
+
+.input-area {
+    flex-shrink: 0;  /* не сжимается */
+    margin-top: auto;  /* прижимается к низу */
+}
+
+.right-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.gauges-panel {
+    flex-shrink: 0;  /* шкалы не сжимаются */
+}
+
+.instruments-panel {
+    flex-shrink: 0;  /* приборы не сжимаются */
+}
+
+.tabs-panel {
+    flex-shrink: 0;  /* вкладки не сжимаются */
+    margin-top: auto;  /* прижимаются к низу */
+}
+
+/* Уменьшаем расстояние между радаром и вкладками */
+.instruments-panel {
+    margin-bottom: 0;  /* убираем нижний отступ */
+    padding-bottom: 5px; /* можно оставить небольшой */
+}
+
+.tabs-panel {
+    margin-top: -16px;  /* убираем верхний отступ */
+    padding-top: 5px;
+}
+
+/* Панель тумблеров (рычаги) - исправленная версия */
+.throttle-section {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.throttle-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    min-width: 60px;
+}
+
+.throttle-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #5f874a;
+    letter-spacing: 1px;
+}
+
+.throttle-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.throttle-btn {
+    width: 30px;
+    height: 30px;
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.throttle-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 10px #5f874a;
+}
+
+.throttle-position {
+    width: 30px;
+    height: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #8bc34a;
+}
+
+/* рычаги значение скорость и ск погружения */
+.throttle-speed, 
+.throttle-depth {
+    font-size: 10px;  /* уменьшил с 16px до 10px */
+    color: #5f874a;
+    margin-top: 2px;
+    min-width: 45px;  /* фиксированная минимальная ширина */
+    text-align: center;  /* текст по центру */
+    white-space: nowrap;  /* запрещаем перенос текста */
+}
+
+/* Легенда карты */
+.map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 15px;
+    padding: 10px;
+    border-top: 1px solid #5f874a;
+    font-size: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-item .current {
+    color: #8bc34a;
+    font-size: 14px;
+}
+
+.legend-item .visited {
+    color: #5f874a;
+    font-size: 14px;
+}
+
+.legend-item .discovered {
+    color: #5f874a;
+    font-size: 14px;
+}
+
+.legend-item .undiscovered {
+    color: #2a4a2a;
+    font-size: 14px;
+}
+
+.map-coordinates {
+    text-align: center;
+    padding: 10px;
+    font-size: 12px;
+    color: #8bc34a;
+    border-top: 1px solid #5f874a;
+}
+
+/* Информация на карте */
+.map-info {
+    margin-top: 15px;
+    padding: 10px;
+    border-top: 1px solid #5f874a;
+    font-size: 11px;
+}
+
+.map-coordinates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    border-radius: 4px;
+}
+
+.map-coordinates div {
+    color: #8bc34a;
+}
+
+.map-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 5px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.legend-item .current {
+    color: #8bc34a;
+    font-size: 14px;
+}
+
+.legend-item .visited {
+    color: #5f874a;
+    font-size: 14px;
+}
+
+.legend-item .discovered {
+    color: #5f874a;
+    font-size: 14px;
+}
+
+.legend-item .undiscovered {
+    color: #2a4a2a;
+    font-size: 14px;
+}
+
+/* Описание предмета в меню */
+.menu-description {
+    font-size: 11px;
+    color: #8bc34a;
+    padding: 5px;
+    margin: 5px 0;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    border-radius: 3px;
+    text-align: center;
+}
