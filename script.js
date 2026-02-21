@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.currentRegion = 1;
     window.showTransitionButton = false;
     window.transitionCells = [];
-    const TOTAL_REGIONS = 5;
+    window.TOTAL_REGIONS = 5; // сделаем глобальной
 
     window.signalsList = [];
     window.signalIdCounter = 0;
@@ -69,12 +69,9 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     window.gameMap = [];
-    window.playerRow = 10;  // Центр карты 9x9
+    window.playerRow = 10;
     window.playerCol = 10;
 
-    // Инициализация карты
-    generateRegion(window.currentRegion);
-    
     // === НАХОДИМ ВСЕ ЭЛЕМЕНТЫ ===
     window.fuelDisplay = document.getElementById('fuel-value');
     window.oxygenDisplay = document.getElementById('oxygen-value');
@@ -353,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     lever3.addEventListener('click', function() {
         addToScreen('🔘 Рычаг 3 нажат');
-        addItemToInventory('Металлолом', '🔩');
+        addItemToInventory({ name: 'Металлолом', icon: '🔩', description: 'Восстанавливает 20% корпуса', canDrop: true, canUse: true });
     });
 
     lever4.addEventListener('click', function() {
@@ -404,7 +401,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Сброс региона
         window.currentRegion = 1;
-        generateRegion(window.currentRegion);
+        if (typeof generateRegion === 'function') {
+            generateRegion(window.currentRegion);
+        }
         
         engineOn = false;
         sonarOn = false;
@@ -563,10 +562,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         //сканирование радаром после каждого движения
-        scanSurroundings();
+        if (typeof scanSurroundings === 'function') {
+            scanSurroundings();
+        }
 
         // Проверка нахождения на клетке перехода
-        updateTransitionButton();
+        if (typeof updateTransitionButton === 'function') {
+            updateTransitionButton();
+        }
 
         time++;
 
@@ -601,7 +604,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     addToScreen('ВСЕ СИСТЕМЫ В НОМИНАЛЕ. УДАЧИ.');
     
-    setTimeout(addStartItems, 1000);
+    setTimeout(() => {
+        if (typeof addStartItems === 'function') {
+            addStartItems();
+        }
+    }, 1000);
+    
     setTimeout(() => addSignal('АВАРИЙНЫЙ СИГНАЛ', 'Обнаружен неопознанный объект по курсу 47\nГлубина 320м\nДистанция 5.7км'), 5000);
     setTimeout(() => addSignal('СООБЩЕНИЕ ОТ БАЗЫ', 'Внимание! В вашем районе зафиксирована повышенная активность.\nБудьте осторожны.'), 10000);
 
@@ -614,6 +622,13 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => {
         updateMiniInstruments();
     }, 100);
+    
+    // Инициализация карты после загрузки всех функций
+    setTimeout(() => {
+        if (typeof generateRegion === 'function') {
+            generateRegion(window.currentRegion);
+        }
+    }, 200);
     
     function showFinalMessage() {
         if (!gameOver) {

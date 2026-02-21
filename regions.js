@@ -1,19 +1,16 @@
 // regions.js - управление регионами и переходами
 
-// Текущий регион
-window.currentRegion = 1;
-
 // Количество регионов
 const TOTAL_REGIONS = 5;
 
-// Флаг для отображения кнопки перехода
-window.showTransitionButton = false;
-
-// Координаты переходов в текущем регионе
-window.transitionCells = [];
-
 // Функция для генерации карты региона
 function generateRegion(regionNumber) {
+    // Проверяем, что MAP_ROWS и MAP_COLS существуют
+    if (!window.MAP_ROWS || !window.MAP_COLS) {
+        console.error('MAP_ROWS или MAP_COLS не определены');
+        return;
+    }
+    
     // Очищаем карту
     window.gameMap = [];
     
@@ -36,7 +33,7 @@ function generateRegion(regionNumber) {
         // Первый переход где-то в левой половине
         let exit1Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + 1;
         // Второй переход где-то в правой половине
-        let exit2Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + window.MAP_COLS / 2;
+        let exit2Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + Math.floor(window.MAP_COLS / 2);
         
         window.gameMap[0][exit1Col].type = 'exit';
         window.gameMap[0][exit2Col].type = 'exit';
@@ -59,11 +56,14 @@ function generateRegion(regionNumber) {
     // Сбрасываем позицию в клетке
     window.positionX = 0;
     window.positionY = 0;
+    
+    console.log('Регион сгенерирован:', regionNumber);
 }
 
 // Функция для проверки, находится ли игрок на клетке перехода
 function checkTransitionCell() {
     if (!window.gameMap) return false;
+    if (window.playerRow === undefined || window.playerCol === undefined) return false;
     
     let currentTile = window.gameMap[window.playerRow][window.playerCol];
     window.showTransitionButton = (currentTile && currentTile.type === 'exit');
