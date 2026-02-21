@@ -1,4 +1,3 @@
-// ui.js
 function updateEngineIndicator() {
     const indicator = document.getElementById('engine-indicator');
     const light = indicator.querySelector('.indicator-light');
