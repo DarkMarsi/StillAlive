@@ -70,7 +70,7 @@ function showStartMenu() {
                     </div>
                     <div class="signature-field">
                         <span class="signature-label">ДАТА:</span>
-                        <span class="signature-date">2187.11.24</span>
+                        <span class="signature-date" id="contract-date"></span>
                     </div>
                 </div>
                 
@@ -87,15 +87,28 @@ function showStartMenu() {
     `;
     
     overlay.innerHTML = contractHTML;
+        
+    // СНАЧАЛА добавляем overlay на страницу
     document.body.appendChild(overlay);
-    
-    // Добавляем обработчики
+
+    // ПОТОМ ищем элемент и вставляем дату
+    const dateElement = document.getElementById('contract-date');
+    if (dateElement) {
+        // Устанавливаем дату на 1000 лет вперед
+        const today = new Date();
+        const futureYear = today.getFullYear() + 1000;
+        const day = String(today.getDate()).padStart(2, '0');
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        
+        // Формат: ГГГГ.ММ.ДД
+        const futureDate = `${futureYear}.${month}.${day}`;
+        dateElement.textContent = futureDate;
+        
+        console.log('Дата установлена:', futureDate); // для проверки
+    }
+
+    // Теперь можно добавлять обработчики
     document.getElementById('sign-contract-btn').addEventListener('click', function() {
-        // Получаем имя из поля ввода
-        const nameInput = document.getElementById('player-name-input');
-        if (nameInput && nameInput.value.trim() !== '') {
-            playerName = nameInput.value.trim();
-        }
         
         // Показываем сообщение о подписании
         showContractAccepted();
