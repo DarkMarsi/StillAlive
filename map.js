@@ -32,6 +32,9 @@ function renderMap() {
             if (row === window.playerRow && col === window.playerCol) {
                 displayChar = '⏺'; // Текущая позиция корабля
                 tileClass += ' current';
+            } else if (tile.type === 'exit' && tile.discovered) {
+                displayChar = '🚪'; // Выход в другой регион
+                tileClass += ' exit';
             } else if (tile.visited) {
                 displayChar = '•'; // Посещенная клетка
                 tileClass += ' visited';
@@ -135,28 +138,6 @@ function discoverAdjacent(row, col) {
     if (col - 1 >= 0) window.gameMap[row][col - 1].discovered = true;
     if (row - 1 >= 0) window.gameMap[row - 1][col].discovered = true;
     if (row + 1 < window.MAP_ROWS) window.gameMap[row + 1][col].discovered = true;
-}
-
-function initMap() {
-    window.gameMap = [];
-    for (let row = 0; row < window.MAP_ROWS; row++) {
-        window.gameMap[row] = [];
-        for (let col = 0; col < window.MAP_COLS; col++) {
-            window.gameMap[row][col] = {
-                discovered: false,
-                visited: false,
-                type: null,
-                event: null
-            };
-        }
-    }
-    
-    // Устанавливаем начальную позицию в центр карты (10,10 для 21x21)
-    window.playerRow = 10;
-    window.playerCol = 10;
-    
-    window.gameMap[window.playerRow][window.playerCol].discovered = true;
-    window.gameMap[window.playerRow][window.playerCol].visited = true;
 }
 
 // Функция для обновления только данных карты (без полной перерисовки)

@@ -289,5 +289,36 @@ function turnRight() {
     drawMiniCompass();
     addToScreen(`🧭 Курс изменён: ${window.shipHeading}°`);
 }
-// Запускаем отрисовку компаса
-//setInterval(drawCompass, 100);
+
+// Создание кнопки перехода
+let transitionButton = null;
+
+function updateTransitionButton() {
+    // Проверяем, находится ли игрок на клетке перехода
+    checkTransitionCell();
+    
+    if (window.showTransitionButton) {
+        // Если кнопки еще нет, создаем
+        if (!transitionButton) {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'transition-button-container';
+            buttonContainer.id = 'transition-button-container';
+            buttonContainer.innerHTML = `
+                <button class="transition-button" id="transition-button">
+                    🚪 ПЕРЕЙТИ В РЕГИОН ${window.currentRegion + 1}
+                </button>
+            `;
+            document.body.appendChild(buttonContainer);
+            
+            transitionButton = document.getElementById('transition-button');
+            transitionButton.addEventListener('click', showTransitionDialog);
+        }
+    } else {
+        // Если кнопка есть, удаляем
+        if (transitionButton) {
+            const container = document.getElementById('transition-button-container');
+            if (container) container.remove();
+            transitionButton = null;
+        }
+    }
+}

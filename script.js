@@ -20,6 +20,12 @@ document.addEventListener('DOMContentLoaded', function() {
     window.noBatteryPressureWarning = false;
     window.messageHistory = [];
     
+    // === РЕГИОНЫ ===
+    window.currentRegion = 1;
+    window.showTransitionButton = false;
+    window.transitionCells = [];
+    const TOTAL_REGIONS = 5;
+
     window.signalsList = [];
     window.signalIdCounter = 0;
     
@@ -67,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.playerCol = 10;
 
     // Инициализация карты
-    initMap();
+    generateRegion(window.currentRegion);
     
     // === НАХОДИМ ВСЕ ЭЛЕМЕНТЫ ===
     window.fuelDisplay = document.getElementById('fuel-value');
@@ -381,8 +387,8 @@ document.addEventListener('DOMContentLoaded', function() {
         day = 1;
         time = 0;
         
-        resetThrottles(); // сброс рычагов (он уже вызывает resetNavigation)
-
+        resetThrottles(); // сброс рычагов
+        
         generatorWorking = true;
         oxygenGeneratorWorking = true;
         lowBatteryWarning = false;
@@ -396,7 +402,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         addStartItems();
         
-        initMap(); //устанавливает playerRow и playerCol
+        // Сброс региона
+        window.currentRegion = 1;
+        generateRegion(window.currentRegion);
         
         engineOn = false;
         sonarOn = false;
@@ -556,6 +564,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         //сканирование радаром после каждого движения
         scanSurroundings();
+
+        // Проверка нахождения на клетке перехода
+        updateTransitionButton();
 
         time++;
 
