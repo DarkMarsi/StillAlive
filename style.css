@@ -114,7 +114,7 @@ body {
 
 /* Давление красным */
 #pressure-gauge {
-    background-color: #b84a4a;
+    background-color: #d06b6b;
 }
 
 /* Радар */
@@ -225,8 +225,8 @@ body {
     width: 36px;
     height: 36px;
     background-color: #1a1a1a;
-    border: 2px solid #b84a4a;
-    color: #b84a4a;
+    border: 2px solid #d06b6b;
+    color: #d06b6b;
     font-family: 'Courier New', monospace;
     font-size: 18px;
     font-weight: bold;
@@ -264,9 +264,9 @@ body {
 }
 
 .reset-btn:hover {
-    background-color: #b84a4a;
+    background-color: #d06b6b;
     color: black;
-    box-shadow: 0 0 10px #b84a4a;
+    box-shadow: 0 0 10px #d06b6b;
 }
 
 /* СРЕДНЯЯ ЧАСТЬ: рычаги (тумблеры) */
@@ -329,7 +329,7 @@ body {
     text-align: center;
     font-size: 10px;  /* уменьшили с 12px до 10px */
     line-height: 12px;
-    color: #8bc34a;
+    color: #5f874a;
 }
 
 .throttle-speed, 
@@ -536,8 +536,8 @@ body {
     width: 36px;
     height: 36px;
     background-color: #1a1a1a;
-    border: 2px solid #b84a4a;
-    color: #b84a4a;
+    border: 2px solid #d06b6b;
+    color: #d06b6b;
     font-family: 'Courier New', monospace;
     font-size: 18px;  /* чуть меньше */
     font-weight: bold;
@@ -558,9 +558,9 @@ body {
 }
 
 .reset-btn:hover {
-    background-color: #b84a4a;
+    background-color: #d06b6b;
     color: black;
-    box-shadow: 0 0 10px #b84a4a;
+    box-shadow: 0 0 10px #d06b6b;
 }
 
 /* Удаляем старые стили .btn и .small-btn */
@@ -636,7 +636,7 @@ body {
 .tab-btn.active {
     background-color: #5f874a;
     color: black;
-    border-color: #8bc34a;
+    border-color: #5f874a;
 }
 
 /* Схема модулей */
@@ -669,7 +669,7 @@ body {
 
 .module-card:hover {
     background-color: #2a2a2a;
-    border-color: #8bc34a;
+    border-color: #5f874a;
     transform: scale(1.02);
 }
 
@@ -700,7 +700,7 @@ body {
 }
 
 .modules-lines line {
-    stroke: #8bc34a;     /* более светлый зелёный */
+    stroke: #5f874a;     /* более светлый зелёный */
     stroke-width: 1.5;    /* чуть толще */
     stroke-dasharray: 5,3;  /* пунктирные линии */
     opacity: 0.8;         /* более видимые */
@@ -760,7 +760,7 @@ body {
 }
 
 .menu-close:hover {
-    color: #b84a4a;
+    color: #d06b6b;
 }
 
 /* Здоровье модуля */
@@ -810,7 +810,7 @@ body {
 
 /* Яркая надпись "нет доступных модулей" */
 .menu-item.unavailable {
-    color: #8bc34a;        /* яркий зелёный */
+    color: #5f874a;        /* яркий зелёный */
     border-color: #0a0a0a;
     font-weight: bold;
     text-transform: uppercase;
@@ -821,7 +821,7 @@ body {
 
 .menu-item.unavailable:hover {
     background-color: transparent;
-    color: #8bc34a;
+    color: #5f874a;
     border-color: #0a0a0a;
 }
 
@@ -872,12 +872,12 @@ body {
 
 .signal-item:hover {
     background-color: #1a1a1a;
-    border-color: #8bc34a;
+    border-color: #5f874a;
     transform: translateX(5px);
 }
 
 .signal-item.unread {
-    border-left: 4px solid #8bc34a;
+    border-left: 4px solid #5f874a;
     background-color: #0f1a0f;
 }
 
@@ -888,7 +888,7 @@ body {
 }
 
 .signal-item.unread .signal-status {
-    color: #8bc34a;
+    color: #5f874a;
 }
 
 .signal-title {
@@ -953,7 +953,7 @@ body {
 }
 
 .signal-message-close:hover {
-    color: #b84a4a;
+    color: #d06b6b;
 }
 
 .signal-message-info {
@@ -1013,7 +1013,7 @@ body {
 
 .inventory-cell:hover {
     background-color: #2a2a2a;
-    border-color: #8bc34a;
+    border-color: #5f874a;
     box-shadow: 0 0 8px #5f874a;
 }
 
@@ -1034,7 +1034,7 @@ body {
 }
 
 .signals-list::-webkit-scrollbar-thumb:hover {
-    background: #8bc34a;
+    background: #5f874a;
 }
 
 /* Для Firefox */
@@ -1060,7 +1060,7 @@ body {
 }
 
 .inventory-grid::-webkit-scrollbar-thumb:hover {
-    background: #8bc34a;
+    background: #5f874a;
 }
 
 /* Для Firefox */
@@ -1209,9 +1209,9 @@ body {
 
 .map-tile.current {
     background-color: #2a5f2a;
-    border-color: #8bc34a;
-    color: #8bc34a;
-    text-shadow: 0 0 5px #8bc34a;
+    border-color: #5f874a;
+    color: #5f874a;
+    text-shadow: 0 0 5px #5f874a;
 }
 
 .map-tile.visited {
@@ -1232,7 +1232,7 @@ body {
 
 .map-tile:hover {
     background-color: #2a2a2a;
-    border-color: #8bc34a;
+    border-color: #5f874a;
 }
 
 .map-controls {
@@ -1492,7 +1492,7 @@ body {
     height: 10px;
     text-align: center;
     font-size: 12px;
-    color: #8bc34a;
+    color: #5f874a;
 }
 
 /* рычаги значение скорость и ск погружения */
@@ -1524,7 +1524,7 @@ body {
 }
 
 .legend-item .current {
-    color: #8bc34a;
+    color: #5f874a;
     font-size: 14px;
 }
 
@@ -1547,7 +1547,7 @@ body {
     text-align: center;
     padding: 10px;
     font-size: 12px;
-    color: #8bc34a;
+    color: #5f874a;
     border-top: 1px solid #5f874a;
 }
 
@@ -1571,7 +1571,7 @@ body {
 }
 
 .map-coordinates div {
-    color: #8bc34a;
+    color: #5f874a;
 }
 
 .map-legend {
@@ -1588,7 +1588,7 @@ body {
 }
 
 .legend-item .current {
-    color: #8bc34a;
+    color: #5f874a;
     font-size: 14px;
 }
 
@@ -1610,7 +1610,7 @@ body {
 /* Описание предмета в меню */
 .menu-description {
     font-size: 11px;
-    color: #8bc34a;
+    color: #5f874a;
     padding: 5px;
     margin: 5px 0;
     background-color: #1a1a1a;
@@ -1630,8 +1630,8 @@ body {
 
 .transition-button {
     background-color: #1a1a1a;
-    border: 2px solid #8bc34a;
-    color: #8bc34a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
     font-family: 'Courier New', monospace;
     font-size: 14px;
     font-weight: bold;
@@ -1644,9 +1644,9 @@ body {
 }
 
 .transition-button:hover {
-    background-color: #8bc34a;
+    background-color: #5f874a;
     color: black;
-    box-shadow: 0 0 20px #8bc34a;
+    box-shadow: 0 0 20px #5f874a;
 }
 
 @keyframes blink {
@@ -1672,7 +1672,7 @@ body {
 
 .transition-dialog {
     background-color: #0a0a0a;
-    border: 2px solid #b84a4a;
+    border: 2px solid #d06b6b;
     border-radius: 4px;
     padding: 20px;
     min-width: 300px;
@@ -1686,7 +1686,7 @@ body {
 .transition-dialog-title {
     font-size: 18px;
     font-weight: bold;
-    color: #b84a4a;
+    color: #d06b6b;
     margin-bottom: 15px;
     text-transform: uppercase;
     letter-spacing: 2px;
@@ -1694,12 +1694,12 @@ body {
 
 .transition-dialog-text {
     font-size: 14px;
-    color: #8bc34a;
+    color: #5f874a;
     margin: 10px 0;
 }
 
 .transition-dialog-text.warning {
-    color: #b84a4a;
+    color: #d06b6b;
     font-weight: bold;
 }
 
@@ -1724,10 +1724,10 @@ body {
 }
 
 .transition-btn-yes:hover {
-    background-color: #b84a4a;
-    border-color: #b84a4a;
+    background-color: #d06b6b;
+    border-color: #d06b6b;
     color: black;
-    box-shadow: 0 0 15px #b84a4a;
+    box-shadow: 0 0 15px #d06b6b;
 }
 
 .transition-btn-no:hover {
@@ -1739,8 +1739,8 @@ body {
 
 .map-tile.exit {
     background-color: #3a2a1a;
-    border-color: #b84a4a;
-    color: #b84a4a;
+    border-color: #d06b6b;
+    color: #d06b6b;
 }
 
 /* Стартовое меню */
@@ -1795,7 +1795,7 @@ body {
 .contract-title {
     font-size: 28px;
     font-weight: bold;
-    color: #8bc34a;
+    color: #5f874a;
     text-transform: uppercase;
     letter-spacing: 3px;
     margin-bottom: 10px;
@@ -1815,7 +1815,7 @@ body {
 .contract-paragraph {
     font-size: 14px;
     line-height: 1.6;
-    color: #8bc34a;
+    color: #5f874a;
     margin-bottom: 20px;
     text-align: justify;
 }
@@ -1823,7 +1823,7 @@ body {
 .contract-clause {
     display: flex;
     margin-bottom: 15px;
-    color: #8bc34a;
+    color: #5f874a;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -1831,7 +1831,7 @@ body {
 .clause-number {
     min-width: 30px;
     font-weight: bold;
-    color: #b84a4a;
+    color: #d06b6b;
 }
 
 .clause-text {
@@ -1853,7 +1853,7 @@ body {
 
 .clause-sublist li::before {
     content: '•';
-    color: #b84a4a;
+    color: #d06b6b;
     position: absolute;
     left: 0;
 }
@@ -1875,7 +1875,7 @@ body {
 
 .signature-label {
     min-width: 150px;
-    color: #8bc34a;
+    color: #5f874a;
     font-size: 14px;
     letter-spacing: 1px;
 }
@@ -1884,7 +1884,7 @@ body {
     flex: 1;
     background-color: black;
     border: 1px solid #5f874a;
-    color: #8bc34a;
+    color: #5f874a;
     padding: 8px 12px;
     font-family: 'Courier New', monospace;
     font-size: 16px;
@@ -1893,12 +1893,12 @@ body {
 }
 
 .signature-input:focus {
-    border-color: #8bc34a;
+    border-color: #5f874a;
     box-shadow: 0 0 10px rgba(139, 195, 74, 0.5);
 }
 
 .signature-date {
-    color: #8bc34a;
+    color: #5f874a;
     font-size: 16px;
     padding: 8px 12px;
     background-color: black;
@@ -1909,14 +1909,14 @@ body {
 
 .contract-warning {
     text-align: center;
-    color: #b84a4a;
+    color: #d06b6b;
     font-size: 12px;
     font-weight: bold;
     letter-spacing: 1px;
     margin-top: 20px;
     padding: 10px;
-    border-top: 1px solid #b84a4a;
-    border-bottom: 1px solid #b84a4a;
+    border-top: 1px solid #d06b6b;
+    border-bottom: 1px solid #d06b6b;
 }
 
 .contract-footer {
@@ -1942,41 +1942,41 @@ body {
 }
 
 .contract-btn-sign {
-    border-color: #8bc34a;
-    color: #8bc34a;
+    border-color: #5f874a;
+    color: #5f874a;
 }
 
 .contract-btn-sign:hover {
-    background-color: #8bc34a;
+    background-color: #5f874a;
     color: black;
-    box-shadow: 0 0 20px #8bc34a;
+    box-shadow: 0 0 20px #5f874a;
 }
 
 .contract-btn-reject {
-    border-color: #b84a4a;
-    color: #b84a4a;
+    border-color: #d06b6b;
+    color: #d06b6b;
 }
 
 .contract-btn-reject:hover {
-    background-color: #b84a4a;
+    background-color: #d06b6b;
     color: black;
-    box-shadow: 0 0 20px #b84a4a;
+    box-shadow: 0 0 20px #d06b6b;
 }
 
 /* Экран принятия контракта */
 .acceptance-container .acceptance-icon {
     font-size: 80px;
-    color: #8bc34a;
+    color: #5f874a;
     margin: 30px 0;
-    text-shadow: 0 0 20px #8bc34a;
+    text-shadow: 0 0 20px #5f874a;
 }
 
 /* Экран отказа */
 .rejection-container .rejection-icon {
     font-size: 80px;
-    color: #b84a4a;
+    color: #d06b6b;
     margin: 30px 0;
-    text-shadow: 0 0 20px #b84a4a;
+    text-shadow: 0 0 20px #d06b6b;
 }
 
 /* Стилизация скроллбара для контракта */
