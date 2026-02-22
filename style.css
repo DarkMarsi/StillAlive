@@ -2018,3 +2018,23 @@ body {
         margin-bottom: 5px;
     }
 }
+
+/* Стили для тултипа информации о клетке */
+.tile-tooltip {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    pointer-events: none;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Обновляем цвета для разных типов клеток */
+.map-tile.visited[data-type="resource"] { color: #d4af37; }
+.map-tile.visited[data-type="dangerous"] { color: #d06b6b; }
+.map-tile.visited[data-type="anomaly"] { color: #b84a9e; }
+.map-tile.visited[data-type="quest"] { color: #8bc34a; }

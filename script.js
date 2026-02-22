@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // === СОЗДАЕМ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    window.deathScreenShown = false; // чтобы экран смерти не показывался дважды
     window.gamePaused = true;
 
     window.fuel = 100;
@@ -599,6 +600,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.hull >= 30 && window.pressureWarning) {
                 window.pressureWarning = false;
             }
+        }
+
+                if (window.gameOver && !window.deathScreenShown) {
+            window.deathScreenShown = true;
+            showDeathScreen();
         }
 
         // Автоматическое отключение двигателя при отсутствии топлива или батареи

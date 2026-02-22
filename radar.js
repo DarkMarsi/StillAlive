@@ -6,8 +6,7 @@ const RADAR_RANGE = 1;
 // Функция для разведки клеток вокруг корабля
 function scanSurroundings() {
     if (!window.sonarOn) {
-        // Если радар выключен - не разведываем
-        return;
+        return;// Если радар выключен - не разведываем
     }
     
     let scanned = false;
@@ -20,37 +19,39 @@ function scanSurroundings() {
             
             let newRow = window.playerRow + dRow;
             let newCol = window.playerCol + dCol;
-            
-            // Проверяем, не выходит ли за границы карты
             if (newRow >= 0 && newRow < window.MAP_ROWS && newCol >= 0 && newCol < window.MAP_COLS) {
                 let tile = window.gameMap[newRow][newCol];
                 
-                // Если клетка еще не была обнаружена
                 if (!tile.discovered) {
                     tile.discovered = true;
                     scanned = true;
                     
-                    // С вероятностью 10% добавляем сообщение об обнаружении
-                    if (Math.random() < 0.1) {
-                        let direction = '';
-                        if (dRow < 0) direction += 'север';
-                        else if (dRow > 0) direction += 'юг';
-                        
-                        if (dCol < 0) direction += 'запад';
-                        else if (dCol > 0) direction += 'восток';
-                        
-                        addToScreen(`📡 Радар обнаружил сектор к ${direction}`);
-                    }
+                    // Получаем информацию о типе клетки при сканировании
+                    let direction = '';
+                    if (dRow < 0) direction += 'север';
+                    else if (dRow > 0) direction += 'юг';
+                    
+                    if (dCol < 0) direction += 'запад';
+                    else if (dCol > 0) direction += 'восток';
+                    
+                    // Показываем тип обнаруженного сектора
+                    const tileInfo = getTileScanInfo(tile);
+                    addToScreen(`📡 Радар обнаружил сектор к ${direction}: ${tileInfo}`);
                 }
             }
         }
     }
     
+    if (scanned && document.getElementById('tab-map').classList.contains('active')) {
+        renderMap();
+    }
+}                
+      
     // Если карта открыта, обновляем отображение
     if (scanned && document.getElementById('tab-map').classList.contains('active')) {
         renderMap();
     }
-}
+
 
 // Функция для проверки, видит ли радар врагов (для будущего использования)
 function isEnemyDetected() {

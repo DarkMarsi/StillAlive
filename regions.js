@@ -14,19 +14,36 @@ function generateRegion(regionNumber) {
     // Очищаем карту
     window.gameMap = [];
     
-    // Создаем пустую карту
+    // Создаем карту со случайными типами клеток
     for (let row = 0; row < window.MAP_ROWS; row++) {
         window.gameMap[row] = [];
         for (let col = 0; col < window.MAP_COLS; col++) {
             window.gameMap[row][col] = {
                 discovered: false,
                 visited: false,
-                type: 'normal',
-                event: null
+                type: getRandomTileType(), // теперь используем функцию из tileTypes.js
+                event: null,
+                resources: null, // для будущих ресурсов
+                dangerLevel: 0    // для будущего уровня опасности
             };
         }
     }
-    
+
+    // Если это не последний регион, добавляем переходы (они перезаписывают тип клетки)
+    if (regionNumber < TOTAL_REGIONS) {
+        // Создаем 2 перехода в верхнем ряду
+        let exit1Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + 1;
+        let exit2Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + Math.floor(window.MAP_COLS / 2);
+        
+        window.gameMap[0][exit1Col].type = 'exit';
+        window.gameMap[0][exit2Col].type = 'exit';
+        
+        window.transitionCells = [
+            { row: 0, col: exit1Col },
+            { row: 0, col: exit2Col }
+        ];
+    }
+        
     // Если это не последний регион, добавляем переходы
     if (regionNumber < TOTAL_REGIONS) {
         // Создаем 2 перехода в верхнем ряду
