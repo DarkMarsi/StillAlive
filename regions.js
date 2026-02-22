@@ -29,8 +29,6 @@ function generateRegion(regionNumber) {
         }
     }
 
-        // regions.js - внутри цикла создания клеток
-
     for (let row = 0; row < window.MAP_ROWS; row++) {
         window.gameMap[row] = [];
         for (let col = 0; col < window.MAP_COLS; col++) {
