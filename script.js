@@ -319,6 +319,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // === ОБРАБОТЧИКИ КНОПОК ===
     lever1.addEventListener('click', function() {
+        playSound('click');
         if (fuel >= 10) {
             fuel = fuel - 10;
             pressure = pressure + 5;
@@ -336,6 +337,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     lever2.addEventListener('click', function() {
+        playSound('click');
         if (battery >= 10) {
             pressure = Math.max(0, pressure - 15);
             battery = Math.max(0, battery - 10);
@@ -349,23 +351,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     lever3.addEventListener('click', function() {
+        playSound('click');
         addToScreen('🔘 Рычаг 3 нажат');
         addItemToInventory({ name: 'Металлолом', icon: '🔩', description: 'Восстанавливает 20% корпуса', canDrop: true, canUse: true });
     });
 
     lever4.addEventListener('click', function() {
+        playSound('click');
         engineOn = !engineOn;
         updateEngineIndicator();
         addToScreen(engineOn ? '🔧 Двигатель включён' : '🔧 Двигатель выключен');
     });
 
     lever5.addEventListener('click', function() {
+        playSound('click');
         sonarOn = !sonarOn;
         updateSonarIndicator();
         addToScreen(sonarOn ? '📡 Сонар включён' : '📡 Сонар выключен');
     });
 
     lever6.addEventListener('click', function() {
+        playSound('click');
         reactorOn = !reactorOn;
         updateReactorIndicator();
         addToScreen(reactorOn ? '☢️ Реактор включён' : '☢️ Реактор выключен');
@@ -376,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function() {
     leverC.addEventListener('click', () => addToScreen('🔘 Кнопка C нажата'));
 
     resetBtn.addEventListener('click', function() {
+        playSound('click');
         fuel = 100;
         oxygen = 100;
         pressure = 0;
@@ -423,16 +430,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
         // Кнопки управления курсом
-    const headingLeft = document.getElementById('heading-left');
-    const headingRight = document.getElementById('heading-right');
-    
-    if (headingLeft) {
-        headingLeft.addEventListener('click', turnLeft);
-    }
-    
-    if (headingRight) {
-        headingRight.addEventListener('click', turnRight);
-    }
+        const headingLeft = document.getElementById('heading-left');
+        const headingRight = document.getElementById('heading-right');
+
+        if (headingLeft) {
+            headingLeft.addEventListener('click', function() {
+                playSound('click');
+                turnLeft();
+            });
+        }
+
+        if (headingRight) {
+            headingRight.addEventListener('click', function() {
+                playSound('click');
+                turnRight();
+            });
+        }
 
     sendBtn.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', function(e) {
@@ -464,6 +477,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 generatorWorking = false;
                 if (!fuelWarningShown) {
                     fuelWarningShown = true;
+                    playSound('alarm');
                     addToScreen('⛽ ТОПЛИВО ЗАКОНЧИЛОСЬ! РЕАКТОР ОСТАНОВЛЕН');
                 }
             }
@@ -479,6 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
             oxygen = Math.max(0, oxygen - oxygenDrainRate * 2);
             if (battery <= 10 && !lowBatteryWarning) {
                 lowBatteryWarning = true;
+                playSound('alarm');
                 addToScreen('⚠️ НИЗКИЙ ЗАРЯД БАТАРЕИ! СИСТЕМА ОЧИСТКИ ВОЗДУХА ОТКЛЮЧЕНА');
             }
         }
@@ -487,6 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
             pressure = Math.min(100, pressure + 0.2);
             if (pressure > 80 && !pressureWarning) {
                 pressureWarning = true;
+                playSound('alarm');
                 addToScreen('💢 КРИТИЧЕСКОЕ ДАВЛЕНИЕ! КОРПУС СКРИПИТ');
             }
         } else if (fuel > 0 && pressure > 0) {
@@ -553,6 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (window.hull < 30 && !window.pressureWarning) {
                 window.pressureWarning = true;
+                playSound('alarm');
                 addToScreen('⚠️ КРИТИЧЕСКОЕ СОСТОЯНИЕ КОРПУСА!');
             }
         }
@@ -589,6 +606,7 @@ document.addEventListener('DOMContentLoaded', function() {
             addToScreen(randomEvent);
 
             if (randomEvent.includes("СИГНАЛ")) {
+                //playSound('signal');
                 addSignal('ПЕРЕХВАТЧЕННЫЙ СИГНАЛ', 'Неопознанный сигнал на частоте 47.3 МГц\nИсточник: неизвестен\nСодержание: [ЗАШУМЛЕНО]');
             }
         }
@@ -614,6 +632,20 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => addSignal('СООБЩЕНИЕ ОТ БАЗЫ', 'Внимание! В вашем районе зафиксирована повышенная активность.\nБудьте осторожны.'), 10000);
 
     updateDisplay();
+
+        // Добавь это в script.js, например после updateDisplay()
+    function checkGameOver() {
+        if (window.oxygen <= 0) {
+            window.gameOver = true;
+            addToScreen('💀❌❌❌❌❌❌❌❌❌❌');
+            addToScreen('КИСЛОРОД ЗАКОНЧИЛСЯ. ВЫ ЗАДОХНУЛИСЬ.');
+        }
+        if (window.hull <= 0) {
+            window.gameOver = true;
+            addToScreen('💀❌❌❌❌❌❌❌❌❌❌');
+            addToScreen('КОРПУС РАЗРУШЕН. ВЫ ПОГИБЛИ.');
+        }
+    }
     
     updateEngineIndicator();
     updateSonarIndicator();

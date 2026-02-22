@@ -80,6 +80,7 @@ function throttleEngineUp() {
     }
     
     updateThrottleDisplay();
+    startEngineSound();
 }
 
 // Функция для двигателя - вниз
@@ -107,6 +108,7 @@ function throttleEngineDown() {
     }
     
     updateThrottleDisplay();
+    startEngineSound();
 }
 
 // Функция для балласта - вверх (погружение)
@@ -136,6 +138,7 @@ function throttleBallastUp() {
     addToScreen(message);
     
     updateThrottleDisplay();
+    startBallastSound()
 }
 
 // Функция для балласта - вниз (всплытие)
@@ -165,6 +168,7 @@ function throttleBallastDown() {
     addToScreen(message);
     
     updateThrottleDisplay();
+    startBallastSound()
 }
 
 // Функция проверки работы балласта

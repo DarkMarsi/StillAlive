@@ -155,6 +155,9 @@ function showContractAccepted() {
         </div>
     `;
     
+    // ЗАПУСКАЕМ ЗВУК ВОДЫ ПОСЛЕ ПОДПИСАНИЯ
+    startWaterAmbient();
+    
     document.getElementById('start-game-btn').addEventListener('click', function() {
         // Удаляем меню и запускаем игру
         overlay.remove();

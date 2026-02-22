@@ -107,7 +107,13 @@ function enterTile(row, col) {
             
         } else if (eventRoll < 0.4) { // 20% - ресурсы
             addToScreen('    ⛏️ Найден металлолом');
-            addItemToInventory('Металлолом', '🔩');
+            addItemToInventory({ 
+                name: 'Металлолом', 
+                icon: '🔩', 
+                description: 'Восстанавливает 20% корпуса', 
+                canDrop: true, 
+                canUse: true 
+            });
             
         } else if (eventRoll < 0.6) { // 20% - опасность
             addToScreen('    💥 Обнаружена опасность!');
@@ -132,6 +138,7 @@ function enterTile(row, col) {
     // Открываем соседние клетки
     discoverAdjacent(row, col);
 }
+
 
 function discoverAdjacent(row, col) {
     if (col + 1 < window.MAP_COLS) window.gameMap[row][col + 1].discovered = true;
