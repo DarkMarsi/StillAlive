@@ -80,7 +80,7 @@ function throttleEngineUp() {
     }
     
     updateThrottleDisplay();
-    startEngineSound();
+    updateEngineSound();
 }
 
 // Функция для двигателя - вниз
@@ -108,7 +108,7 @@ function throttleEngineDown() {
     }
     
     updateThrottleDisplay();
-    startEngineSound();
+    updateBallastSound();
 }
 
 // Функция для балласта - вверх (погружение)
@@ -179,15 +179,23 @@ function isBallastWorking() {
 // При выключении двигателя - сбрасываем в нейтраль
 function onEngineToggle() {
     if (!window.engineOn) {
-        window.throttleEngine = 0;
-        window.speed = 0;
-        updateThrottleDisplay();
-        updateMiniInstruments();
+        // Если двигатель выключили, начинаем плавную остановку
+        addToScreen('🔧 Двигатель останавливается...');
     } else if (!isEngineWorking()) {
         window.engineOn = false;
         updateEngineIndicator();
         addToScreen('⛔ Двигатель повреждён, запуск невозможен');
+    } else if (window.fuel <= 0) {
+        window.engineOn = false;
+        updateEngineIndicator();
+        addToScreen('⛽ Нет топлива для запуска');
+    } else if (window.battery <= 0) {
+        window.engineOn = false;
+        updateEngineIndicator();
+        addToScreen('⚡ Нет заряда батареи для запуска');
     }
+    
+    updateEngineSound();
 }
 
 // Функция полного сброса всех рычагов

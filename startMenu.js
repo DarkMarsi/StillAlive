@@ -5,6 +5,10 @@ let playerName = 'ЗАКЛЮЧЕННЫЙ-734';
 
 // Функция для отображения стартового меню
 function showStartMenu() {
+        // Ставим игру на паузу
+    if (window.gamePaused !== undefined) {
+        window.gamePaused = true;
+    }
     // Создаем затемненный фон
     const overlay = document.createElement('div');
     overlay.className = 'start-menu-overlay';
@@ -203,6 +207,8 @@ function showContractRejected() {
 
 // Функция запуска игры (уже существующая)
 function startGame() {
+    // Снимаем игру с паузы
+    window.gamePaused = false;
     // Здесь просто убеждаемся, что игра работает
     console.log('Игра начата с именем:', playerName);
     

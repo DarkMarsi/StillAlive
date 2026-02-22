@@ -2,6 +2,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // === СОЗДАЕМ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    window.gamePaused = true;
+
     window.fuel = 100;
     window.oxygen = 100;
     window.pressure = 0;
@@ -383,6 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     resetBtn.addEventListener('click', function() {
         playSound('click');
+        window.gamePaused = true;
+
         fuel = 100;
         oxygen = 100;
         pressure = 0;
@@ -427,6 +431,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (document.getElementById('tab-map').classList.contains('active')) {
             renderMap();
         }
+
+        // Показываем контракт заново
+        if (typeof showStartMenu === 'function') {
+            showStartMenu();
+        }
     });
 
         // Кнопки управления курсом
@@ -463,6 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // === ГЛАВНЫЙ ТАЙМЕР ===
     setInterval(function() {
         if (gameOver) return;
+        if (window.gamePaused) return; // Если игра на паузе - ничего не делаем
 
         generatorWorking = fuel > 0;
         oxygenGeneratorWorking = battery > 10;
@@ -472,6 +482,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 battery = Math.min(100, battery + 0.3);
                 fuel = Math.max(0, fuel - 0.2);
                 generatorWorking = true;
+                
+                // Сбрасываем предупреждение о топливе, если оно появилось, но теперь топливо есть
+                if (fuelWarningShown && fuel > 0) {
+                    fuelWarningShown = false;
+                }
             } else {
                 battery = Math.max(0, battery - batteryDrainRate);
                 generatorWorking = false;
@@ -488,7 +503,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (oxygenGeneratorWorking) {
             oxygen = Math.max(0, oxygen - 0.2);
-            lowBatteryWarning = false;
+            // Сбрасываем предупреждение о батарее, если батарея восстановилась
+            if (battery > 10 && lowBatteryWarning) {
+                lowBatteryWarning = false;
+            }
         } else {
             oxygen = Math.max(0, oxygen - oxygenDrainRate * 2);
             if (battery <= 10 && !lowBatteryWarning) {
@@ -507,6 +525,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else if (fuel > 0 && pressure > 0) {
             pressure = Math.max(0, pressure - 0.1);
+            // Сбрасываем предупреждение о давлении, если давление упало
+            if (pressure <= 80 && pressureWarning) {
+                pressureWarning = false;
+            }
         }
 
         // Логика глубины и давления
@@ -572,7 +594,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 playSound('alarm');
                 addToScreen('⚠️ КРИТИЧЕСКОЕ СОСТОЯНИЕ КОРПУСА!');
             }
+        } else {
+            // Сбрасываем предупреждение о корпусе, если глубина безопасная
+            if (window.hull >= 30 && window.pressureWarning) {
+                window.pressureWarning = false;
+            }
         }
+
+        // Автоматическое отключение двигателя при отсутствии топлива или батареи
+if (window.engineOn) {
+    if (window.fuel <= 0) {
+        window.engineOn = false;
+        updateEngineIndicator();
+        updateEngineSound();
+        addToScreen('⛽ Топливо кончилось! Двигатель отключён');
+    } else if (window.battery <= 0) {
+        window.engineOn = false;
+        updateEngineIndicator();
+        updateEngineSound();
+        addToScreen('⚡ Батарея разряжена! Двигатель отключён');
+    } else if (!isEngineWorking()) {
+        window.engineOn = false;
+        updateEngineIndicator();
+        updateEngineSound();
+        addToScreen('💔 Двигатель повреждён!');
+    }
+}
+
+        // Если двигатель выключен, но рычаг не в нуле - плавно сбрасываем скорость
+        if (!window.engineOn && window.throttleEngine !== 0) {
+            // Плавно уменьшаем скорость до 0
+            if (window.throttleEngine > 0) {
+                window.throttleEngine = Math.max(0, window.throttleEngine - 0.1);
+            } else if (window.throttleEngine < 0) {
+                window.throttleEngine = Math.min(0, window.throttleEngine + 0.1);
+            }
+            
+            // Округляем до целого числа для отображения
+            if (Math.abs(window.throttleEngine) < 0.2) {
+                window.throttleEngine = 0;
+            }
+            
+            updateThrottleDisplay();
+        }
+
+        // Обновляем звук двигателя (вызывается каждый тик для плавности)
+        updateEngineSound();
+        updateBallastSound();
 
         if (window.engineOn && window.throttleEngine !== 0 && isEngineWorking() && window.fuel > 0) {
             updatePosition();
