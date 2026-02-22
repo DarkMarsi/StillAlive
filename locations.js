@@ -112,28 +112,60 @@ function generateLocationsForTile(tile, row, col) {
     // Запоминаем тип клетки для генерации следующей
     tile.isEmpty = isEmpty;
     
-    // Генерируем 9 точек в клетке (сетка 3x3)
+    // Генерируем 9 точек в клетке (сетка 3x3) с случайным смещением
     const points = [];
-    const cellSize = window.cellSize || 1000;
+    const cellSize = window.cellSize || 1000; // размер клетки 1000 метров
     const step = cellSize / 3; // ~333.33 метра между точками
-    
+
+    // Добавляем случайное смещение для более естественного расположения
+    // Максимальное смещение - 100 метров в любую сторону
+    const maxOffset = 100;
+
     for (let i = 0; i < 3; i++) {
         for (let j = 0; j < 3; j++) {
-            // Вычисляем координаты точки в локальной системе клетки
-            // От -500 до +500 (центр клетки в 0,0)
-            const x = -cellSize/2 + step/2 + i * step;
-            const y = -cellSize/2 + step/2 + j * step;
+            // Базовая позиция в узле сетки
+            let baseX = step/2 + i * step;
+            let baseY = step/2 + j * step;
+            
+            // Случайное смещение
+            let offsetX = (Math.random() * 2 - 1) * maxOffset;
+            let offsetY = (Math.random() * 2 - 1) * maxOffset;
+            
+            // Вычисляем финальные координаты с ограничением от 50 до 950
+            // (чтобы точки не были слишком близко к краям)
+            let x = Math.round(Math.min(950, Math.max(50, baseX + offsetX)));
+            let y = Math.round(Math.min(950, Math.max(50, baseY + offsetY)));
             
             points.push({
-                x: Math.round(x),
-                y: Math.round(y),
+                x: x,
+                y: y,
                 visited: false
             });
         }
     }
+
+    // Сортируем точки по расстоянию от центра клетки (500,500)
+    points.sort((a, b) => {
+        const distA = Math.sqrt(Math.pow(a.x - 500, 2) + Math.pow(a.y - 500, 2));
+        const distB = Math.sqrt(Math.pow(b.x - 500, 2) + Math.pow(b.y - 500, 2));
+        return distA - distB;
+    });
     
-    // Выбираем случайную точку как активную локацию
-    const activePointIndex = Math.floor(Math.random() * points.length);
+    // Выбираем активную точку не совсем случайно, а с приоритетом на центральные
+    // Но с некоторой вариативностью
+    let activePointIndex;
+    const rand = Math.random();
+    
+    if (rand < 0.4) {
+        // 40% - центральная зона (первые 3 точки)
+        activePointIndex = Math.floor(Math.random() * 3);
+    } else if (rand < 0.7) {
+        // 30% - средняя зона (следующие 3 точки)
+        activePointIndex = 3 + Math.floor(Math.random() * 3);
+    } else {
+        // 30% - дальняя зона (последние 3 точки)
+        activePointIndex = 6 + Math.floor(Math.random() * 3);
+    }
     
     // Выбираем название локации
     let locationName;
@@ -163,7 +195,7 @@ function generateLocationsForTile(tile, row, col) {
         discovered: false
     };
 
-        // Сохраняем координаты активной точки для сообщения
+    // Сохраняем координаты активной точки для сообщения
     tile.locationCoords = {
         x: points[activePointIndex].x,
         y: points[activePointIndex].y
@@ -181,10 +213,14 @@ function checkLocationProximity() {
     
     const activePoint = currentTile.locations.points[currentTile.locations.activePointIndex];
     
+    // Вычисляем глобальные координаты активной точки
+    const pointGlobalX = window.playerCol * window.cellSize + activePoint.x;
+    const pointGlobalY = window.playerRow * window.cellSize + activePoint.y;
+    
     // Вычисляем расстояние до активной точки
     const distance = Math.sqrt(
-        Math.pow(window.positionX - activePoint.x, 2) + 
-        Math.pow(window.positionY - activePoint.y, 2)
+        Math.pow(window.globalX - pointGlobalX, 2) + 
+        Math.pow(window.globalY - pointGlobalY, 2)
     );
     
     // Если расстояние меньше 100 метров - показываем кнопку взаимодействия
@@ -203,7 +239,7 @@ function checkLocationProximity() {
     return inRange;
 }
 
-// locations.js - функция updateLocationButton
+// Обновление кнопки локации
 function updateLocationButton() {
     const existingButton = document.getElementById('location-button-container');
     

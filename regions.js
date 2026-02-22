@@ -14,21 +14,7 @@ function generateRegion(regionNumber) {
     // Очищаем карту
     window.gameMap = [];
     
-    // Создаем карту со случайными типами клеток
-    for (let row = 0; row < window.MAP_ROWS; row++) {
-        window.gameMap[row] = [];
-        for (let col = 0; col < window.MAP_COLS; col++) {
-            window.gameMap[row][col] = {
-                discovered: false,
-                visited: false,
-                type: getRandomTileType(), // теперь используем функцию из tileTypes.js
-                event: null,
-                resources: null, // для будущих ресурсов
-                dangerLevel: 0    // для будущего уровня опасности
-            };
-        }
-    }
-
+    // Создаем карту со случайными типами клеток и локациями (ОДИН РАЗ!)
     for (let row = 0; row < window.MAP_ROWS; row++) {
         window.gameMap[row] = [];
         for (let col = 0; col < window.MAP_COLS; col++) {
@@ -42,7 +28,9 @@ function generateRegion(regionNumber) {
             };
             
             // Генерируем локации для клетки
-            generateLocationsForTile(window.gameMap[row][col], row, col);
+            if (typeof generateLocationsForTile === 'function') {
+                generateLocationsForTile(window.gameMap[row][col], row, col);
+            }
         }
     }
 
@@ -61,19 +49,21 @@ function generateRegion(regionNumber) {
         ];
     }
     
-    // Устанавливаем начальную позицию внизу по центру
-    window.playerRow = window.MAP_ROWS - 1;
+    // Устанавливаем начальную позицию в центре региона
+    window.playerRow = Math.floor(window.MAP_ROWS / 2);
     window.playerCol = Math.floor(window.MAP_COLS / 2);
-    
+
+    // Глобальные координаты в центре региона
+    window.globalX = window.playerCol * window.cellSize + window.cellSize / 2;
+    window.globalY = window.playerRow * window.cellSize + window.cellSize / 2;
+
+    // Локальные координаты в центре клетки
+    window.positionX = window.cellSize / 2;
+    window.positionY = window.cellSize / 2;
+
     // Открываем текущую клетку
     window.gameMap[window.playerRow][window.playerCol].discovered = true;
     window.gameMap[window.playerRow][window.playerCol].visited = true;
-    
-    // Сбрасываем позицию в клетке
-    window.positionX = 0;
-    window.positionY = 0;
-    
-    console.log('Регион сгенерирован:', regionNumber);
 }
 
 // Функция для проверки, находится ли игрок на клетке перехода
@@ -134,8 +124,8 @@ function goToNextRegion() {
     generateRegion(window.currentRegion);
     
     // Сбрасываем навигацию
-    window.positionX = 0;
-    window.positionY = 0;
+    window.positionX = 1000;
+    window.positionY = 1000;
     
     // Обновляем карту
     if (document.getElementById('tab-map').classList.contains('active')) {

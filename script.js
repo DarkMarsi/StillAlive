@@ -43,10 +43,14 @@ document.addEventListener('DOMContentLoaded', function() {
     window.speed = 0;      // скорость в узлах
     window.depth = 0;      // глубина в метрах
 
-        // НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ НАВИГАЦИИ
-    window.positionX = 0;  // текущая позиция по X (-1000 до 1000, 0 = центр клетки)
-    window.positionY = 0;  // текущая позиция по Y (-1000 до 1000, 0 = центр клетки)
-    window.cellSize = 1000; // размер клетки в метрах
+    // ГЛОБАЛЬНЫЕ КООРДИНАТЫ (весь регион)
+    window.globalX = 10500;  // начальная позиция по X (центр региона: 21 * 1000 / 2)
+    window.globalY = 10500;  // начальная позиция по Y (центр региона: 21 * 1000 / 2)
+    window.cellSize = 1000;  // размер клетки в метрах
+
+    // Для обратной совместимости (если где-то используется)
+    window.positionX = 500;   // локальная позиция в текущей клетке (0-1000)
+    window.positionY = 500;   // локальная позиция в текущей клетке (0-1000)
 
     window.moduleEngine = 100;
     window.moduleReactor = 100;
@@ -606,7 +610,7 @@ document.addEventListener('DOMContentLoaded', function() {
             window.deathScreenShown = true;
             showDeathScreen();
         }
-        
+
         // Если включен режим разработчика, ресурсы не тратятся
         if (window.devMode && window.devMode.enabled) {
             if (window.devMode.infiniteFuel) fuel = 100;

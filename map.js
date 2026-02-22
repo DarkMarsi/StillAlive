@@ -141,7 +141,8 @@ function renderMap() {
         <div class="map-info">
             <div class="map-coordinates">
                 <div>Клетка: ${String.fromCharCode(65 + window.playerCol)}${window.playerRow + 1}</div>
-                <div>Позиция в клетке: X: ${Math.round(window.positionX)} м, Y: ${Math.round(window.positionY)} м</div>
+                <div>Глобальные: X: ${Math.round(window.globalX)} м, Y: ${Math.round(window.globalY)} м</div>
+                <div>В клетке: X: ${Math.round(window.positionX)} м, Y: ${Math.round(window.positionY)} м</div>
                 <div>Курс: ${window.shipHeading}° (${directionText})</div>
                 <div>Скорость: ${window.speed} узлов</div>
             </div>

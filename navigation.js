@@ -1,4 +1,4 @@
-// navigation.js - управление движением по карте с накоплением расстояния
+// navigation.js - управление движением по карте с глобальными координатами
 
 // Функция обновления позиции (вызывается из главного таймера)
 function updatePosition() {
@@ -50,19 +50,21 @@ function updatePosition() {
     // Определяем направление движения по компасу
     let headingRad = (window.shipHeading * Math.PI) / 180;
     
-    // Движение по X и Y
+    // Движение по глобальным X и Y
     let moveX = Math.sin(headingRad) * speedFactor;
     let moveY = -Math.cos(headingRad) * speedFactor;
     
-    // Обновляем позицию
-    window.positionX += moveX;
-    window.positionY += moveY;
+    // Обновляем глобальную позицию
+    window.globalX += moveX;
+    window.globalY += moveY;
+    
+    // Обновляем локальные координаты в текущей клетке
+    updateLocalCoordinates();
     
     // Для отладки
     console.log('Движение:', {speed: currentSpeed, heading: window.shipHeading, moveX, moveY, fuel: window.fuel});
-    
-    // Проверяем, не пора ли перейти в другую клетку
-    checkCellTransition();
+    console.log('Глобальные координаты:', {x: Math.round(window.globalX), y: Math.round(window.globalY)});
+    console.log('Клетка:', getCurrentCell());
 
     // Проверяем приближение к активной точке локации
     if (typeof checkLocationProximity === 'function') {
@@ -72,108 +74,80 @@ function updatePosition() {
     // ВАЖНО: здесь НЕ вызываем renderMap(), потому что это слишком тяжело
     // Вместо этого обновляем только текст, если карта открыта
     if (document.getElementById('tab-map').classList.contains('active')) {
-        updateMapDisplay(); // Вызовем новую функцию для обновления текста
+        updateMapDisplay();
     }
     
     return true;
 }
 
-// Функция проверки перехода между клетками
-function checkCellTransition() {
-    let moved = false;
-    let direction = null;
+// Функция для получения текущей клетки по глобальным координатам
+function getCurrentCell() {
+    const col = Math.floor(window.globalX / window.cellSize);
+    const row = Math.floor(window.globalY / window.cellSize);
     
-    // Проверка перехода по X (восток-запад)
-    while (window.positionX >= window.cellSize / 2) {
-        // Движение на восток (вправо)
-        if (window.playerCol < window.MAP_COLS - 1) {
-            window.playerCol++;
-            // Сохраняем позицию по Y перед переходом
-            const oldY = window.positionY;
-            window.positionX -= window.cellSize;
-            // Устанавливаем новую позицию: появляемся на западном краю новой клетки
-            window.positionX = -window.cellSize / 2 + 1;
-            // Сохраняем Y координату
-            window.positionY = oldY;
-            direction = 'east';
-            enterTile(window.playerRow, window.playerCol, direction);
-            moved = true;
-        } else {
-            // Уперлись в край карты
-            window.positionX = window.cellSize / 2 - 1;
-            addToScreen('🌊 Дальше на восток нет земли!');
-            break;
-        }
+    return {
+        row: Math.min(window.MAP_ROWS - 1, Math.max(0, row)),
+        col: Math.min(window.MAP_COLS - 1, Math.max(0, col))
+    };
+}
+
+// Функция для обновления локальных координат и проверки перехода между клетками
+function updateLocalCoordinates() {
+    // Вычисляем текущую клетку по глобальным координатам
+    let newCol = Math.floor(window.globalX / window.cellSize);
+    let newRow = Math.floor(window.globalY / window.cellSize);
+    
+    // Проверяем, не вышли ли за границы карты
+    if (newCol < 0 || newCol >= window.MAP_COLS || 
+        newRow < 0 || newRow >= window.MAP_ROWS) {
+        
+        // Возвращаем в пределы карты
+        window.globalX = Math.min(window.MAP_COLS * window.cellSize - 1, 
+                                   Math.max(0, window.globalX));
+        window.globalY = Math.min(window.MAP_ROWS * window.cellSize - 1, 
+                                   Math.max(0, window.globalY));
+        
+        newCol = Math.floor(window.globalX / window.cellSize);
+        newRow = Math.floor(window.globalY / window.cellSize);
+        
+        addToScreen('🌊 Достигнут край карты!');
     }
     
-    while (window.positionX <= -window.cellSize / 2) {
-        // Движение на запад (влево)
-        if (window.playerCol > 0) {
-            window.playerCol--;
-            const oldY = window.positionY;
-            window.positionX += window.cellSize;
-            window.positionX = window.cellSize / 2 - 1;
-            window.positionY = oldY;
-            direction = 'west';
-            enterTile(window.playerRow, window.playerCol, direction);
-            moved = true;
-        } else {
-            // Уперлись в край карты
-            window.positionX = -window.cellSize / 2 + 1;
-            addToScreen('🌊 Дальше на запад нет земли!');
-            break;
-        }
+    // Если клетка изменилась
+    if (newRow !== window.playerRow || newCol !== window.playerCol) {
+        // Сохраняем старую клетку
+        const oldRow = window.playerRow;
+        const oldCol = window.playerCol;
+        
+        // Переходим в новую клетку
+        window.playerRow = newRow;
+        window.playerCol = newCol;
+        
+        // Определяем направление перехода
+        let direction = null;
+        if (newRow > oldRow) direction = 'south';
+        else if (newRow < oldRow) direction = 'north';
+        else if (newCol > oldCol) direction = 'east';
+        else if (newCol < oldCol) direction = 'west';
+        
+        // Вызываем событие входа в клетку
+        enterTile(window.playerRow, window.playerCol, direction);
     }
     
-    // Проверка перехода по Y (север-юг)
-    while (window.positionY >= window.cellSize / 2) {
-        // Движение на юг (вниз)
-        if (window.playerRow < window.MAP_ROWS - 1) {
-            window.playerRow++;
-            const oldX = window.positionX;
-            window.positionY -= window.cellSize;
-            window.positionY = -window.cellSize / 2 + 1;
-            window.positionX = oldX;
-            direction = 'south';
-            enterTile(window.playerRow, window.playerCol, direction);
-            moved = true;
-        } else {
-            // Уперлись в край карты
-            window.positionY = window.cellSize / 2 - 1;
-            addToScreen('🌊 Дальше на юг нет земли!');
-            break;
-        }
-    }
-    
-    while (window.positionY <= -window.cellSize / 2) {
-        // Движение на север (вверх)
-        if (window.playerRow > 0) {
-            window.playerRow--;
-            const oldX = window.positionX;
-            window.positionY += window.cellSize;
-            window.positionY = window.cellSize / 2 - 1;
-            window.positionX = oldX;
-            direction = 'north';
-            enterTile(window.playerRow, window.playerCol, direction);
-            moved = true;
-        } else {
-            // Уперлись в край карты
-            window.positionY = -window.cellSize / 2 + 1;
-            addToScreen('🌊 Дальше на север нет земли!');
-            break;
-        }
-    }
-    
-    // Обновляем отображение карты, если она открыта и было движение
-    if (moved && document.getElementById('tab-map').classList.contains('active')) {
-        renderMap();
-    }
+    // Обновляем локальные координаты внутри клетки (0-1000)
+    window.positionX = window.globalX - (window.playerCol * window.cellSize);
+    window.positionY = window.globalY - (window.playerRow * window.cellSize);
 }
 
 // Функция для сброса навигации (вызывается при ресете)
 function resetNavigation() {
-    window.positionX = 0;
-    window.positionY = 0;
-    // Не устанавливаем playerRow и playerCol здесь, 
-    // потому что initMap() уже делает это
+    // Начальная позиция в центре региона
+    window.globalX = Math.floor(window.MAP_COLS * window.cellSize / 2);
+    window.globalY = Math.floor(window.MAP_ROWS * window.cellSize / 2);
+    
+    window.playerRow = Math.floor(window.MAP_ROWS / 2);
+    window.playerCol = Math.floor(window.MAP_COLS / 2);
+    
+    window.positionX = 500;
+    window.positionY = 500;
 }
