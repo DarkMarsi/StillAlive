@@ -29,6 +29,25 @@ function generateRegion(regionNumber) {
         }
     }
 
+        // regions.js - внутри цикла создания клеток
+
+    for (let row = 0; row < window.MAP_ROWS; row++) {
+        window.gameMap[row] = [];
+        for (let col = 0; col < window.MAP_COLS; col++) {
+            window.gameMap[row][col] = {
+                discovered: false,
+                visited: false,
+                type: getRandomTileType(),
+                event: null,
+                resources: null,
+                dangerLevel: 0
+            };
+            
+            // Генерируем локации для клетки
+            generateLocationsForTile(window.gameMap[row][col], row, col);
+        }
+    }
+
     // Если это не последний регион, добавляем переходы (они перезаписывают тип клетки)
     if (regionNumber < TOTAL_REGIONS) {
         // Создаем 2 перехода в верхнем ряду

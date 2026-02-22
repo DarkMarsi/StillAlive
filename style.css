@@ -2059,3 +2059,106 @@ body {
 .map-tile.type-exit {
     color: #d06b6b !important;
 }
+
+/* Стили для кнопки локации */
+.location-button-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+}
+
+.location-button {
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px rgba(95,135,74,0.5);
+    transition: all 0.3s;
+    animation: locationPulse 1.5s infinite;
+}
+
+.location-button:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 20px #5f874a;
+}
+
+@keyframes locationPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Стили для диалога локации */
+.location-dialog-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.location-dialog {
+    background-color: #0a0a0a;
+    border: 3px solid #5f874a;
+    border-radius: 8px;
+    padding: 30px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 0 50px rgba(95,135,74,0.3);
+}
+
+.location-dialog-title {
+    font-size: 24px;
+    color: #5f874a;
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.location-dialog-text {
+    font-size: 16px;
+    color: #8bc34a;
+    text-align: center;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.location-dialog-buttons {
+    display: flex;
+    justify-content: center;
+}
+
+.location-btn {
+    background-color: #1a1a1a;
+    border: 2px solid #5f874a;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 30px;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+}
+
+.location-btn:hover {
+    background-color: #5f874a;
+    color: black;
+    box-shadow: 0 0 20px #5f874a;
+}

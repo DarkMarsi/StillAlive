@@ -1,0 +1,296 @@
+// locations.js - система точек интереса внутри клеток
+
+// Список пустых локаций (атмосферные, без интерактива)
+const EMPTY_LOCATIONS = [
+    // Природные образования
+    "Коралловый риф",
+    "Каменный риф",
+    "Мертвый риф",
+    "Коралловое поле",
+    "Подводный лес",
+    "Грязевые холмы",
+    "Скалистый гребень",
+    "Песчаная равнина",
+    "Илистое дно",
+    "Поле валунов",
+    "Впадина",
+    "Глубоководный желоб",
+    "Подводный каньон",
+    "Подводная долина",
+    "Соляной купол",
+    "Ледяной шельф",
+    "Термальное поле",
+    "Грязевые гейзеры",
+    "Подводный вулкан (спящий)",
+    
+    // Флора и фауна
+    "Лес водорослей",
+    "Биолюминесцентное поле",
+    "Охота (стая)",
+    "Кладбище морских животных",
+    "Кости гиганта",
+    "Труп левиафана",
+    "Подводные мины",
+    "Морское чудовище (спящее)",
+    "Сильное течение",
+    "Подводный оползень",
+    "Сероводородный источник",
+    "Кислотное облако",
+    "Магнитная аномалия",
+    "Разлом коры",
+    "Зона тишины",
+    "Мираж",
+    
+    // Техногенные и пустые
+    "Покинутая буровая",
+    "Сломанный буй",
+    "Тросы и якоря",
+    "Ржавая ферма",
+    "Обломки спутника",
+    "Свалка старого оборудования",
+    "Кладбище кораблей",
+    "Затопленная вышка",
+    "Пустой туннель"
+];
+
+// Список непустых локаций (интерактивные)
+const POPULATED_LOCATIONS = [
+    "Аванпост жилой",
+    "Аванпост затонувший",
+    "Охранный пост",
+    "Рыболовный пост",
+    "Верфь",
+    "Шлюз-бункер",
+    "Работающая исследовательская база",
+    "Заброшенная исследовательская база",
+    "Старое хранилище",
+    "Маяк",
+    "Кораблекрушение крупное",
+    "Сбежавшие заключенные (корабль)",
+    "Обломки",
+    "Выпавший груз",
+    "Контрабанда (схрон)",
+    "Отшельник (жилище)",
+    "Механик (мастерская)",
+    "Таинственный незнакомец (убежище)",
+    "Наркоманы и безумцы (лагерь)",
+    "Затонувший город",
+    "Неизвестное сооружение",
+    "Древние руины",
+    "Храм бездны",
+    "Затопленная лаборатория",
+    "Криокамера"
+];
+
+// Генерация точек интереса для клетки
+function generateLocationsForTile(tile, row, col) {
+    // Определяем, пустая ли клетка
+    // 50% шанс на пустую клетку, но не больше 5 подряд
+    // 50% шанс на непустую, но не больше 2 подряд
+    
+    // Проверяем историю последних клеток
+    const lastTileTypes = window.lastTileTypes || [];
+    
+    let isEmpty;
+    
+    if (lastTileTypes.filter(t => t === 'empty').length >= 5) {
+        // Слишком много пустых подряд - делаем непустую
+        isEmpty = false;
+    } else if (lastTileTypes.filter(t => t === 'populated').length >= 2) {
+        // Слишком много непустых подряд - делаем пустую
+        isEmpty = true;
+    } else {
+        // Случайный выбор
+        isEmpty = Math.random() < 0.5;
+    }
+    
+    // Обновляем историю
+    if (!window.lastTileTypes) window.lastTileTypes = [];
+    window.lastTileTypes.push(isEmpty ? 'empty' : 'populated');
+    if (window.lastTileTypes.length > 10) window.lastTileTypes.shift(); // храним последние 10
+    
+    // Запоминаем тип клетки для генерации следующей
+    tile.isEmpty = isEmpty;
+    
+    // Генерируем 9 точек в клетке (сетка 3x3)
+    const points = [];
+    const cellSize = window.cellSize || 1000;
+    const step = cellSize / 3; // ~333.33 метра между точками
+    
+    for (let i = 0; i < 3; i++) {
+        for (let j = 0; j < 3; j++) {
+            // Вычисляем координаты точки в локальной системе клетки
+            // От -500 до +500 (центр клетки в 0,0)
+            const x = -cellSize/2 + step/2 + i * step;
+            const y = -cellSize/2 + step/2 + j * step;
+            
+            points.push({
+                x: Math.round(x),
+                y: Math.round(y),
+                visited: false
+            });
+        }
+    }
+    
+    // Выбираем случайную точку как активную локацию
+    const activePointIndex = Math.floor(Math.random() * points.length);
+    
+    // Выбираем название локации
+    let locationName;
+    let lastLocation = window.lastLocation || '';
+    
+    if (isEmpty) {
+        // Пустая клетка - выбираем из списка пустых локаций
+        // Но не больше 1 раза подряд одинаковую
+        do {
+            locationName = EMPTY_LOCATIONS[Math.floor(Math.random() * EMPTY_LOCATIONS.length)];
+        } while (locationName === lastLocation && EMPTY_LOCATIONS.length > 1);
+    } else {
+        // Непустая клетка - выбираем из списка населенных
+        do {
+            locationName = POPULATED_LOCATIONS[Math.floor(Math.random() * POPULATED_LOCATIONS.length)];
+        } while (locationName === lastLocation && POPULATED_LOCATIONS.length > 1);
+    }
+    
+    window.lastLocation = locationName;
+    
+    // Сохраняем данные в клетке
+    tile.locations = {
+        points: points,
+        activePointIndex: activePointIndex,
+        name: locationName,
+        isEmpty: isEmpty,
+        discovered: false
+    };
+    
+    return tile;
+}
+
+// Проверка, находится ли игрок в зоне активной точки
+function checkLocationProximity() {
+    if (!window.gameMap || window.playerRow === undefined) return false;
+    
+    const currentTile = window.gameMap[window.playerRow][window.playerCol];
+    if (!currentTile.locations || !currentTile.locations.discovered) return false;
+    
+    const activePoint = currentTile.locations.points[currentTile.locations.activePointIndex];
+    
+    // Вычисляем расстояние до активной точки
+    const distance = Math.sqrt(
+        Math.pow(window.positionX - activePoint.x, 2) + 
+        Math.pow(window.positionY - activePoint.y, 2)
+    );
+    
+    // Если расстояние меньше 100 метров - показываем кнопку взаимодействия
+    const inRange = distance < 100;
+    
+    if (inRange && !window.showLocationButton) {
+        window.showLocationButton = true;
+        window.currentLocation = currentTile.locations;
+        updateLocationButton();
+    } else if (!inRange && window.showLocationButton) {
+        window.showLocationButton = false;
+        window.currentLocation = null;
+        updateLocationButton();
+    }
+    
+    return inRange;
+}
+
+// Обновление кнопки локации
+function updateLocationButton() {
+    const existingButton = document.getElementById('location-button-container');
+    
+    if (window.showLocationButton && window.currentLocation) {
+        if (!existingButton) {
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'location-button-container';
+            buttonContainer.id = 'location-button-container';
+            buttonContainer.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 2000;
+                animation: pulse 1.5s infinite;
+            `;
+            
+            const locationType = window.currentLocation.isEmpty ? '🌊' : '🏭';
+            buttonContainer.innerHTML = `
+                <button class="location-button" id="location-button" style="
+                    background-color: #1a1a1a;
+                    border: 2px solid #5f874a;
+                    color: #5f874a;
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                    font-weight: bold;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    box-shadow: 0 0 15px rgba(95,135,74,0.5);
+                ">
+                    ${locationType} ${window.currentLocation.name} (${Math.round(window.currentLocation.points[window.currentLocation.activePointIndex].x)}м, ${Math.round(window.currentLocation.points[window.currentLocation.activePointIndex].y)}м)
+                </button>
+            `;
+            
+            document.body.appendChild(buttonContainer);
+            
+            document.getElementById('location-button').addEventListener('click', function() {
+                showLocationDialog(window.currentLocation);
+            });
+        }
+    } else if (existingButton) {
+        existingButton.remove();
+    }
+}
+
+// Показать диалог локации (заглушка, потом добавим интерактив)
+function showLocationDialog(location) {
+    const dialogHTML = `
+        <div class="location-dialog">
+            <div class="location-dialog-content">
+                <div class="location-dialog-title">${location.isEmpty ? '🌊' : '🏭'} ${location.name}</div>
+                <div class="location-dialog-text">
+                    ${location.isEmpty ? 'Атмосферная зона. Наблюдение...' : 'Обнаружено поселение. Взаимодействие пока в разработке.'}
+                </div>
+                <div class="location-dialog-buttons">
+                    <button class="location-btn" id="location-close">ЗАКРЫТЬ</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const dialogDiv = document.createElement('div');
+    dialogDiv.innerHTML = dialogHTML;
+    dialogDiv.className = 'location-dialog-container';
+    dialogDiv.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+    `;
+    
+    document.body.appendChild(dialogDiv);
+    
+    document.getElementById('location-close').addEventListener('click', function() {
+        dialogDiv.remove();
+    });
+}
+
+// Добавляем анимацию пульсации
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0% { opacity: 1; transform: translateX(-50%) scale(1); }
+        50% { opacity: 0.8; transform: translateX(-50%) scale(1.05); }
+        100% { opacity: 1; transform: translateX(-50%) scale(1); }
+    }
+`;
+document.head.appendChild(style);

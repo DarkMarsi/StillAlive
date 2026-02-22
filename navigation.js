@@ -63,6 +63,11 @@ function updatePosition() {
     
     // Проверяем, не пора ли перейти в другую клетку
     checkCellTransition();
+
+    // Проверяем приближение к активной точке локации
+    if (typeof checkLocationProximity === 'function') {
+        checkLocationProximity();
+    }
     
     // ВАЖНО: здесь НЕ вызываем renderMap(), потому что это слишком тяжело
     // Вместо этого обновляем только текст, если карта открыта

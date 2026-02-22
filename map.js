@@ -26,7 +26,21 @@ function showTileInfo(row, col, event) {
     if (tile.discovered) {
         typeInfo = getTileScanInfo(tile);
     }
-    
+
+    let locationInfo = '';
+    if (tile.discovered && tile.locations) {
+        if (tile.visited) {
+            // Если посетили клетку - показываем точное название
+            locationInfo = `<div>Локация: ${tile.locations.name}</div>`;
+            if (!tile.locations.isEmpty) {
+                locationInfo += `<div style="color: #d4af37;">⚡ Активная зона</div>`;
+            }
+        } else {
+            // Если только обнаружили - показываем тип (пустая/населенная)
+            locationInfo = `<div>Тип: ${tile.locations.isEmpty ? 'Пустая' : 'Населенная'}</div>`;
+        }
+    }
+
     const tooltip = document.createElement('div');
     tooltip.id = 'tile-tooltip';
     tooltip.className = 'tile-tooltip';
@@ -51,6 +65,7 @@ function showTileInfo(row, col, event) {
         </div>
         <div>Статус: ${status}</div>
         <div>Тип: ${typeInfo}</div>
+        ${locationInfo}
         ${tile.visited ? '<div style="color: #5f874a; margin-top: 5px;">✓ Исследовано</div>' : ''}
     `;
     
