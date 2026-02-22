@@ -77,6 +77,13 @@ function showTileInfo(row, col, event) {
 }
 
 function renderMap() {
+    // Сохраняем текущую позицию скролла
+    const mapContainer = document.querySelector('.map-container');
+    let scrollTop = 0;
+    if (mapContainer) {
+        scrollTop = mapContainer.scrollTop;
+    }
+    
     let mapHTML = '<div class="map-container">';
     
     // Верхний ряд с буквами (A-U)
@@ -105,13 +112,10 @@ function renderMap() {
                 displayChar = '🚪';
                 tileClass += ' exit';
             } else if (tile.visited) {
-                // Для посещенных клеток показываем иконку типа
                 displayChar = window.TILE_ICONS[tile.type] || '•';
                 tileClass += ' visited';
-                // Добавляем атрибут с типом для CSS
                 tileClass += ` type-${tile.type}`;
             } else if (tile.discovered) {
-                // Для обнаруженных показываем иконку типа
                 displayChar = window.TILE_ICONS[tile.type] || '?';
                 tileClass += ' discovered';
                 tileClass += ` type-${tile.type}`;
@@ -156,6 +160,12 @@ function renderMap() {
     `;
     
     window.screen.innerHTML = mapHTML;
+    
+    // Восстанавливаем позицию скролла
+    const newMapContainer = document.querySelector('.map-container');
+    if (newMapContainer) {
+        newMapContainer.scrollTop = scrollTop;
+    }
     
     // Добавляем обработчики наведения
     document.querySelectorAll('.map-tile').forEach(tile => {
