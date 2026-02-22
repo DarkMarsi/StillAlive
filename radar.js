@@ -49,11 +49,6 @@ function scanSurroundings() {
         renderMap();
     }
 }
-      
-    // Если карта открыта, обновляем отображение
-    if (scanned && document.getElementById('tab-map').classList.contains('active')) {
-        renderMap();
-    }
 
 
 // Функция для проверки, видит ли радар врагов (для будущего использования)
