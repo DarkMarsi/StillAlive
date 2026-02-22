@@ -2038,3 +2038,24 @@ body {
 .map-tile.visited[data-type="dangerous"] { color: #d06b6b; }
 .map-tile.visited[data-type="anomaly"] { color: #b84a9e; }
 .map-tile.visited[data-type="quest"] { color: #8bc34a; }
+
+/* Цвета для разных типов клеток */
+.map-tile.type-resource {
+    color: #d4af37 !important;
+}
+
+.map-tile.type-dangerous {
+    color: #d06b6b !important;
+}
+
+.map-tile.type-anomaly {
+    color: #b84a9e !important;
+}
+
+.map-tile.type-quest {
+    color: #8bc34a !important;
+}
+
+.map-tile.type-exit {
+    color: #d06b6b !important;
+}

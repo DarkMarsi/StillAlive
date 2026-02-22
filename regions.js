@@ -43,24 +43,6 @@ function generateRegion(regionNumber) {
             { row: 0, col: exit2Col }
         ];
     }
-        
-    // Если это не последний регион, добавляем переходы
-    if (regionNumber < TOTAL_REGIONS) {
-        // Создаем 2 перехода в верхнем ряду
-        // Первый переход где-то в левой половине
-        let exit1Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + 1;
-        // Второй переход где-то в правой половине
-        let exit2Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + Math.floor(window.MAP_COLS / 2);
-        
-        window.gameMap[0][exit1Col].type = 'exit';
-        window.gameMap[0][exit2Col].type = 'exit';
-        
-        // Сохраняем координаты переходов
-        window.transitionCells = [
-            { row: 0, col: exit1Col },
-            { row: 0, col: exit2Col }
-        ];
-    }
     
     // Устанавливаем начальную позицию внизу по центру
     window.playerRow = window.MAP_ROWS - 1;

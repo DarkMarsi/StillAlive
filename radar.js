@@ -6,7 +6,7 @@ const RADAR_RANGE = 1;
 // Функция для разведки клеток вокруг корабля
 function scanSurroundings() {
     if (!window.sonarOn) {
-        return;// Если радар выключен - не разведываем
+        return; // Если радар выключен - ничего не сканируем
     }
     
     let scanned = false;
@@ -19,6 +19,7 @@ function scanSurroundings() {
             
             let newRow = window.playerRow + dRow;
             let newCol = window.playerCol + dCol;
+            
             if (newRow >= 0 && newRow < window.MAP_ROWS && newCol >= 0 && newCol < window.MAP_COLS) {
                 let tile = window.gameMap[newRow][newCol];
                 
@@ -26,17 +27,19 @@ function scanSurroundings() {
                     tile.discovered = true;
                     scanned = true;
                     
-                    // Получаем информацию о типе клетки при сканировании
-                    let direction = '';
-                    if (dRow < 0) direction += 'север';
-                    else if (dRow > 0) direction += 'юг';
-                    
-                    if (dCol < 0) direction += 'запад';
-                    else if (dCol > 0) direction += 'восток';
-                    
-                    // Показываем тип обнаруженного сектора
-                    const tileInfo = getTileScanInfo(tile);
-                    addToScreen(`📡 Радар обнаружил сектор к ${direction}: ${tileInfo}`);
+                    // С вероятностью 10% добавляем сообщение об обнаружении
+                    if (Math.random() < 0.1) {
+                        let direction = '';
+                        if (dRow < 0) direction += 'север';
+                        else if (dRow > 0) direction += 'юг';
+                        
+                        if (dCol < 0) direction += 'запад';
+                        else if (dCol > 0) direction += 'восток';
+                        
+                        // Получаем информацию о типе клетки
+                        const tileInfo = getTileScanInfo(tile);
+                        addToScreen(`📡 Радар обнаружил сектор к ${direction}: ${tileInfo}`);
+                    }
                 }
             }
         }
@@ -45,7 +48,7 @@ function scanSurroundings() {
     if (scanned && document.getElementById('tab-map').classList.contains('active')) {
         renderMap();
     }
-}                
+}
       
     // Если карта открыта, обновляем отображение
     if (scanned && document.getElementById('tab-map').classList.contains('active')) {

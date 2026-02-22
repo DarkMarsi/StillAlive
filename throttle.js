@@ -108,7 +108,7 @@ function throttleEngineDown() {
     }
     
     updateThrottleDisplay();
-    updateBallastSound();
+    updateEngineSound(); // ИСПРАВЛЕНО: было updateBallastSound()
 }
 
 // Функция для балласта - вверх (погружение)
@@ -138,7 +138,37 @@ function throttleBallastUp() {
     addToScreen(message);
     
     updateThrottleDisplay();
-    startBallastSound()
+    updateBallastSound(); // ИСПРАВЛЕНО: было startBallastSound()
+}
+
+// Функция для балласта - вниз (всплытие)
+function throttleBallastDown() {
+    if (!isBallastWorking()) {
+        addToScreen('⛔ Балласт повреждён!');
+        return;
+    }
+    
+    if (window.battery <= 0) {
+        addToScreen('⚡ Нет заряда батареи для работы балласта!');
+        return;
+    }
+    
+    // Увеличиваем скорость всплытия (нажатие вниз = всплытие)
+    if (window.throttleBallast < 2) {
+        window.throttleBallast++;
+    }
+    
+    // Скорость изменения глубины
+    window.ballastSpeed = window.throttleBallast * window.BALLAST_BASE_SPEED;
+    
+    let message = '';
+    if (window.ballastSpeed > 0) message = '💧 Всплытие, скорость ' + Math.abs(window.ballastSpeed);
+    else if (window.ballastSpeed < 0) message = '💧 Погружение, скорость ' + Math.abs(window.ballastSpeed);
+    else message = '💧 Удержание глубины';
+    addToScreen(message);
+    
+    updateThrottleDisplay();
+    updateBallastSound(); // ИСПРАВЛЕНО: было startBallastSound()
 }
 
 // Функция для балласта - вниз (всплытие)
