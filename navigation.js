@@ -35,7 +35,7 @@ function updatePosition() {
     }
     
     // Расход топлива (чем выше скорость, тем больше расход)
-    let fuelConsumption = currentSpeed / 100; // 10 узлов = 0.1, 20 узлов = 0.2 и т.д.
+    let fuelConsumption = currentSpeed / 100;
     
     if (window.fuel < fuelConsumption) {
         addToScreen('⛽ Топливо на исходе! Движение замедляется...');
@@ -45,14 +45,14 @@ function updatePosition() {
     window.fuel = Math.max(0, window.fuel - fuelConsumption);
     
     // Скорость в метрах за тик
-    let speedFactor = currentSpeed * 2; // 10 узлов = 20 метров за тик
+    let speedFactor = currentSpeed * 2;
     
     // Определяем направление движения по компасу
     let headingRad = (window.shipHeading * Math.PI) / 180;
     
     // Движение по глобальным X и Y
     let moveX = Math.sin(headingRad) * speedFactor;
-    let moveY = -Math.cos(headingRad) * speedFactor;
+    let moveY = -Math.cos(headingRad) * speedFactor; // Север = Y уменьшается (к 0)
     
     // Обновляем глобальную позицию
     window.globalX += moveX;
@@ -61,20 +61,12 @@ function updatePosition() {
     // Обновляем локальные координаты в текущей клетке
     updateLocalCoordinates();
     
-    // Для отладки
-    console.log('Движение:', {speed: currentSpeed, heading: window.shipHeading, moveX, moveY, fuel: window.fuel});
-    console.log('Глобальные координаты:', {x: Math.round(window.globalX), y: Math.round(window.globalY)});
-    console.log('Клетка:', getCurrentCell());
+    // Для отладки (можно оставить или убрать)
+    console.log('Движение:', {speed: currentSpeed, heading: window.shipHeading, globalY: Math.round(window.globalY)});
 
     // Проверяем приближение к активной точке локации
     if (typeof checkLocationProximity === 'function') {
         checkLocationProximity();
-    }
-    
-    // ВАЖНО: здесь НЕ вызываем renderMap(), потому что это слишком тяжело
-    // Вместо этого обновляем только текст, если карта открыта
-    if (document.getElementById('tab-map').classList.contains('active')) {
-        updateMapDisplay();
     }
     
     return true;
@@ -125,8 +117,8 @@ function updateLocalCoordinates() {
         
         // Определяем направление перехода
         let direction = null;
-        if (newRow > oldRow) direction = 'south';
-        else if (newRow < oldRow) direction = 'north';
+        if (newRow < oldRow) direction = 'north';  // Y уменьшается -> идем на север (вверх)
+        else if (newRow > oldRow) direction = 'south'; // Y увеличивается -> идем на юг (вниз)
         else if (newCol > oldCol) direction = 'east';
         else if (newCol < oldCol) direction = 'west';
         
@@ -137,17 +129,26 @@ function updateLocalCoordinates() {
     // Обновляем локальные координаты внутри клетки (0-1000)
     window.positionX = window.globalX - (window.playerCol * window.cellSize);
     window.positionY = window.globalY - (window.playerRow * window.cellSize);
+    
+    // Обновляем отображение карты, если она открыта
+    if (document.getElementById('tab-map').classList.contains('active')) {
+        renderMap();
+    } else {
+        updateMapDisplay();
+    }
 }
 
 // Функция для сброса навигации (вызывается при ресете)
 function resetNavigation() {
-    // Начальная позиция в центре региона
-    window.globalX = Math.floor(window.MAP_COLS * window.cellSize / 2);
-    window.globalY = Math.floor(window.MAP_ROWS * window.cellSize / 2);
-    
-    window.playerRow = Math.floor(window.MAP_ROWS / 2);
+    // Начальная позиция в самой нижней центральной клетке
+    window.playerRow = window.MAP_ROWS - 1;
     window.playerCol = Math.floor(window.MAP_COLS / 2);
     
-    window.positionX = 500;
-    window.positionY = 500;
+    // Глобальные координаты в центре этой клетки
+    window.globalX = window.playerCol * window.cellSize + window.cellSize / 2;
+    window.globalY = window.playerRow * window.cellSize + window.cellSize / 2;
+    
+    // Локальные координаты в центре клетки
+    window.positionX = window.cellSize / 2;
+    window.positionY = window.cellSize / 2;
 }

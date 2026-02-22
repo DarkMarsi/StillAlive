@@ -78,7 +78,7 @@ function throttleEngineUp() {
     } else {
         addToScreen('⚙️ Максимальная скорость');
     }
-    
+
     updateThrottleDisplay();
     updateEngineSound();
 }

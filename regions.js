@@ -1,5 +1,3 @@
-// regions.js - управление регионами и переходами
-
 // Количество регионов
 const TOTAL_REGIONS = 5;
 
@@ -36,10 +34,11 @@ function generateRegion(regionNumber) {
 
     // Если это не последний регион, добавляем переходы (они перезаписывают тип клетки)
     if (regionNumber < TOTAL_REGIONS) {
-        // Создаем 2 перехода в верхнем ряду
+        // Создаем 2 перехода в ВЕРХНЕМ ряду (самая верхняя строка)
         let exit1Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + 1;
         let exit2Col = Math.floor(Math.random() * (window.MAP_COLS / 2 - 2)) + Math.floor(window.MAP_COLS / 2);
         
+        // Верхний ряд = первая строка (row = 0)
         window.gameMap[0][exit1Col].type = 'exit';
         window.gameMap[0][exit2Col].type = 'exit';
         
@@ -49,12 +48,15 @@ function generateRegion(regionNumber) {
         ];
     }
     
-    // Устанавливаем начальную позицию в центре региона
-    window.playerRow = Math.floor(window.MAP_ROWS / 2);
-    window.playerCol = Math.floor(window.MAP_COLS / 2);
+    // === ИСПРАВЛЕНО: начальная позиция ===
+    // Строка MAP_ROWS - 1 = САМАЯ НИЖНЯЯ
+    // Строка 0 = САМАЯ ВЕРХНЯЯ
+    window.playerRow = window.MAP_ROWS - 1; // Ставим в самый низ
+    window.playerCol = Math.floor(window.MAP_COLS / 2); // Центр по горизонтали
 
-    // Глобальные координаты в центре региона
+    // Глобальные координаты в центре этой клетки
     window.globalX = window.playerCol * window.cellSize + window.cellSize / 2;
+    // ВНИЗУ (row = MAP_ROWS-1) -> Y должен быть БОЛЬШИМ
     window.globalY = window.playerRow * window.cellSize + window.cellSize / 2;
 
     // Локальные координаты в центре клетки
@@ -62,8 +64,13 @@ function generateRegion(regionNumber) {
     window.positionY = window.cellSize / 2;
 
     // Открываем текущую клетку
-    window.gameMap[window.playerRow][window.playerCol].discovered = true;
-    window.gameMap[window.playerRow][window.playerCol].visited = true;
+    if (window.gameMap[window.playerRow] && window.gameMap[window.playerRow][window.playerCol]) {
+        window.gameMap[window.playerRow][window.playerCol].discovered = true;
+        window.gameMap[window.playerRow][window.playerCol].visited = true;
+    }
+    
+    console.log('Регион сгенерирован:', regionNumber);
+    console.log('Начальная позиция:', {row: window.playerRow, col: window.playerCol, globalY: window.globalY});
 }
 
 // Функция для проверки, находится ли игрок на клетке перехода
@@ -122,10 +129,6 @@ function goToNextRegion() {
     
     // Генерируем новый регион
     generateRegion(window.currentRegion);
-    
-    // Сбрасываем навигацию
-    window.positionX = 1000;
-    window.positionY = 1000;
     
     // Обновляем карту
     if (document.getElementById('tab-map').classList.contains('active')) {

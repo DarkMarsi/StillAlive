@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.depth = 0;      // глубина в метрах
 
     // ГЛОБАЛЬНЫЕ КООРДИНАТЫ (весь регион)
-    window.globalX = 10500;  // начальная позиция по X (центр региона: 21 * 1000 / 2)
-    window.globalY = 10500;  // начальная позиция по Y (центр региона: 21 * 1000 / 2)
     window.cellSize = 1000;  // размер клетки в метрах
+    window.globalX = 10500;  // начальная позиция по X (центр региона)
+    window.globalY = 20500;  // начальная позиция по Y (НИЗ карты) - 20*1000 + 500
 
     // Для обратной совместимости (если где-то используется)
     window.positionX = 500;   // локальная позиция в текущей клетке (0-1000)
@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     window.gameMap = [];
-    window.playerRow = 10;
+    window.playerRow = 20;
     window.playerCol = 10;
 
     // === НАХОДИМ ВСЕ ЭЛЕМЕНТЫ ===
@@ -669,9 +669,8 @@ if (window.engineOn) {
         updateBallastSound();
 
         if (window.engineOn && window.throttleEngine !== 0 && isEngineWorking() && window.fuel > 0) {
-            updatePosition();
+            updatePosition(); // Движение происходит здесь, а не при нажатии кнопки
         }
-        
         //сканирование радаром после каждого движения
         if (typeof scanSurroundings === 'function') {
             scanSurroundings();

@@ -1,4 +1,4 @@
-// map.js - добавить новую функцию
+// map.js - управление картой
 
 // Показать информацию о клетке
 function showTileInfo(row, col, event) {
@@ -136,7 +136,7 @@ function renderMap() {
         directionText = 'СТОЯНКА';
     }
     
-    // Добавляем информацию о позиции (ВОЗВРАЩАЕМ!)
+    // Добавляем информацию о позиции
     mapHTML += `
         <div class="map-info">
             <div class="map-coordinates">
@@ -167,7 +167,6 @@ function renderMap() {
     });
 }
 
-// map.js - функция enterTile
 function enterTile(row, col, direction) {
     let tile = window.gameMap[row][col];
     
@@ -234,7 +233,6 @@ function enterTile(row, col, direction) {
     discoverAdjacent(row, col);
 }
 
-
 function discoverAdjacent(row, col) {
     if (col + 1 < window.MAP_COLS) window.gameMap[row][col + 1].discovered = true;
     if (col - 1 >= 0) window.gameMap[row][col - 1].discovered = true;
@@ -269,14 +267,16 @@ function updateMapDisplay() {
     
     // Обновляем текст в существующих элементах
     const coordsDivs = mapInfo.querySelectorAll('.map-coordinates div');
-    if (coordsDivs.length >= 4) {
+    if (coordsDivs.length >= 5) { // теперь 5 элементов
         // Клетка
         coordsDivs[0].textContent = `Клетка: ${String.fromCharCode(65 + window.playerCol)}${window.playerRow + 1}`;
-        // Позиция
-        coordsDivs[1].textContent = `Позиция в клетке: X: ${Math.round(window.positionX)} м, Y: ${Math.round(window.positionY)} м`;
+        // Глобальные координаты
+        coordsDivs[1].textContent = `Глобальные: X: ${Math.round(window.globalX)} м, Y: ${Math.round(window.globalY)} м`;
+        // Локальные координаты
+        coordsDivs[2].textContent = `В клетке: X: ${Math.round(window.positionX)} м, Y: ${Math.round(window.positionY)} м`;
         // Курс
-        coordsDivs[2].textContent = `Курс: ${window.shipHeading}° (${directionText})`;
+        coordsDivs[3].textContent = `Курс: ${window.shipHeading}° (${directionText})`;
         // Скорость
-        coordsDivs[3].textContent = `Скорость: ${window.speed} узлов`;
+        coordsDivs[4].textContent = `Скорость: ${window.speed} узлов`;
     }
 }
