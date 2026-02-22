@@ -166,6 +166,8 @@ function renderMap() {
     });
 }
 
+// map.js - функция enterTile (полностью)
+
 function enterTile(row, col) {
     let tile = window.gameMap[row][col];
     
@@ -216,6 +218,16 @@ function enterTile(row, col) {
             ];
             addToScreen(emptyEvents[Math.floor(Math.random() * emptyEvents.length)]);
         }
+
+        // Если в клетке есть локация и она еще не была обнаружена
+        if (tile.locations && !tile.locations.discovered) {
+            tile.locations.discovered = true;
+            const coords = tile.locationCoords || tile.locations.points[tile.locations.activePointIndex];
+            addToScreen(`📡 ОБНАРУЖЕН НЕИЗВЕСТНЫЙ ОБЪЕКТ`);
+            addToScreen(`    Координаты: X: ${coords.x} м, Y: ${coords.y} м`);
+            addToScreen(`    Тип: ${tile.locations.isEmpty ? 'Атмосферный' : 'Населенный'}`);
+        }
+    
     }
     
     // Открываем соседние клетки

@@ -162,6 +162,12 @@ function generateLocationsForTile(tile, row, col) {
         isEmpty: isEmpty,
         discovered: false
     };
+
+        // Сохраняем координаты активной точки для сообщения
+    tile.locationCoords = {
+        x: points[activePointIndex].x,
+        y: points[activePointIndex].y
+    };
     
     return tile;
 }
@@ -230,7 +236,7 @@ function updateLocationButton() {
                     letter-spacing: 2px;
                     box-shadow: 0 0 15px rgba(95,135,74,0.5);
                 ">
-                    ${locationType} ${window.currentLocation.name} (${Math.round(window.currentLocation.points[window.currentLocation.activePointIndex].x)}м, ${Math.round(window.currentLocation.points[window.currentLocation.activePointIndex].y)}м)
+                    🚀 СТЫКОВКА: ${window.currentLocation.name}
                 </button>
             `;
             

@@ -606,6 +606,22 @@ document.addEventListener('DOMContentLoaded', function() {
             window.deathScreenShown = true;
             showDeathScreen();
         }
+        
+        // Если включен режим разработчика, ресурсы не тратятся
+        if (window.devMode && window.devMode.enabled) {
+            if (window.devMode.infiniteFuel) fuel = 100;
+            if (window.devMode.infiniteOxygen) oxygen = 100;
+            if (window.devMode.infiniteBattery) battery = 100;
+            if (window.devMode.invincibleHull) hull = 100;
+            if (window.devMode.noModuleDamage) {
+                moduleEngine = 100;
+                moduleReactor = 100;
+                moduleBattery = 100;
+                moduleBallast = 100;
+                moduleLifeSupport = 100;
+            }
+        }
+
 
         // Автоматическое отключение двигателя при отсутствии топлива или батареи
 if (window.engineOn) {

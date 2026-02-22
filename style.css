@@ -2162,3 +2162,108 @@ body {
     color: black;
     box-shadow: 0 0 20px #5f874a;
 }
+
+/* Стили для меню разработчика */
+.dev-menu-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 100000;
+}
+
+.dev-menu {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #0a0a0a;
+    border: 3px solid #5f874a;
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 100001;
+    min-width: 300px;
+    box-shadow: 0 0 30px rgba(95,135,74,0.7);
+    pointer-events: auto;
+    color: #5f874a;
+    font-family: 'Courier New', monospace;
+}
+
+.dev-menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #5f874a;
+}
+
+.dev-menu-title {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.dev-menu-close {
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.dev-menu-close:hover {
+    color: #d06b6b;
+}
+
+.dev-menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.dev-menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #1a1a1a;
+    border: 1px solid #5f874a;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dev-menu-item:hover {
+    background-color: #2a2a2a;
+    border-color: #8bc34a;
+}
+
+.dev-item-label {
+    font-size: 14px;
+}
+
+.dev-item-status {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 3px;
+}
+
+.dev-item-status.enabled {
+    background-color: #5f874a;
+    color: black;
+}
+
+.dev-item-status.disabled {
+    background-color: #4a2a2a;
+    color: #d06b6b;
+}
+
+.dev-menu-divider {
+    height: 1px;
+    background-color: #5f874a;
+    margin: 10px 0;
+    opacity: 0.3;
+}
