@@ -166,9 +166,8 @@ function renderMap() {
     });
 }
 
-// map.js - функция enterTile (полностью)
-
-function enterTile(row, col) {
+// map.js - функция enterTile
+function enterTile(row, col, direction) {
     let tile = window.gameMap[row][col];
     
     if (!tile.visited) {

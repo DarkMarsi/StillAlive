@@ -81,14 +81,22 @@ function updatePosition() {
 // Функция проверки перехода между клетками
 function checkCellTransition() {
     let moved = false;
+    let direction = null;
     
     // Проверка перехода по X (восток-запад)
     while (window.positionX >= window.cellSize / 2) {
         // Движение на восток (вправо)
         if (window.playerCol < window.MAP_COLS - 1) {
             window.playerCol++;
+            // Сохраняем позицию по Y перед переходом
+            const oldY = window.positionY;
             window.positionX -= window.cellSize;
-            enterTile(window.playerRow, window.playerCol);
+            // Устанавливаем новую позицию: появляемся на западном краю новой клетки
+            window.positionX = -window.cellSize / 2 + 1;
+            // Сохраняем Y координату
+            window.positionY = oldY;
+            direction = 'east';
+            enterTile(window.playerRow, window.playerCol, direction);
             moved = true;
         } else {
             // Уперлись в край карты
@@ -102,8 +110,12 @@ function checkCellTransition() {
         // Движение на запад (влево)
         if (window.playerCol > 0) {
             window.playerCol--;
+            const oldY = window.positionY;
             window.positionX += window.cellSize;
-            enterTile(window.playerRow, window.playerCol);
+            window.positionX = window.cellSize / 2 - 1;
+            window.positionY = oldY;
+            direction = 'west';
+            enterTile(window.playerRow, window.playerCol, direction);
             moved = true;
         } else {
             // Уперлись в край карты
@@ -118,8 +130,12 @@ function checkCellTransition() {
         // Движение на юг (вниз)
         if (window.playerRow < window.MAP_ROWS - 1) {
             window.playerRow++;
+            const oldX = window.positionX;
             window.positionY -= window.cellSize;
-            enterTile(window.playerRow, window.playerCol);
+            window.positionY = -window.cellSize / 2 + 1;
+            window.positionX = oldX;
+            direction = 'south';
+            enterTile(window.playerRow, window.playerCol, direction);
             moved = true;
         } else {
             // Уперлись в край карты
@@ -133,8 +149,12 @@ function checkCellTransition() {
         // Движение на север (вверх)
         if (window.playerRow > 0) {
             window.playerRow--;
+            const oldX = window.positionX;
             window.positionY += window.cellSize;
-            enterTile(window.playerRow, window.playerCol);
+            window.positionY = window.cellSize / 2 - 1;
+            window.positionX = oldX;
+            direction = 'north';
+            enterTile(window.playerRow, window.playerCol, direction);
             moved = true;
         } else {
             // Уперлись в край карты
@@ -146,7 +166,7 @@ function checkCellTransition() {
     
     // Обновляем отображение карты, если она открыта и было движение
     if (moved && document.getElementById('tab-map').classList.contains('active')) {
-        renderMap(); // При переходе в новую клетку перерисовываем всю карту
+        renderMap();
     }
 }
 

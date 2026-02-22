@@ -95,16 +95,6 @@ function showDevMenu() {
     document.body.appendChild(menuDiv);
     
     const menu = menuDiv.querySelector('.dev-menu');
-    menu.style.position = 'fixed';
-    menu.style.top = '50%';
-    menu.style.left = '50%';
-    menu.style.transform = 'translate(-50%, -50%)';
-    menu.style.backgroundColor = '#0a0a0a';
-    menu.style.border = '3px solid #5f874a';
-    menu.style.padding = '20px';
-    menu.style.zIndex = '100000';
-    menu.style.minWidth = '300px';
-    menu.style.boxShadow = '0 0 30px rgba(95,135,74,0.7)';
     
     // Обработчики
     menuDiv.querySelector('.dev-menu-close').addEventListener('click', () => menuDiv.remove());
@@ -217,33 +207,36 @@ function updateDevModeButton() {
     }
 }
 
-// Подключаем обработчик к кнопке 3
+// Общий обработчик для кнопки 3
+function handleLever3Click(e) {
+    playSound('click');
+    
+    // Если зажат Shift - открываем меню разработчика
+    if (e.shiftKey) {
+        if (!window.devMode.enabled) {
+            toggleDevMode();
+        }
+        showDevMenu();
+    } else {
+        // Обычное поведение кнопки 3
+        addToScreen('🔘 Рычаг 3 нажат');
+        addItemToInventory({ 
+            name: 'Металлолом', 
+            icon: '🔩', 
+            description: 'Восстанавливает 20% корпуса', 
+            canDrop: true, 
+            canUse: true 
+        });
+    }
+}
+
+// Подключаем обработчик после загрузки страницы
 document.addEventListener('DOMContentLoaded', function() {
     const lever3 = document.getElementById('lever3');
     if (lever3) {
-        // Сохраняем оригинальный обработчик
-        const originalClick = lever3.onclick;
-        
-        // Добавляем новый обработчик
-        lever3.addEventListener('click', function(e) {
-            // Если зажат Shift - открываем меню разработчика
-            if (e.shiftKey) {
-                if (!window.devMode.enabled) {
-                    toggleDevMode();
-                }
-                showDevMenu();
-            } else {
-                // Обычное поведение кнопки 3
-                playSound('click');
-                addToScreen('🔘 Рычаг 3 нажат');
-                addItemToInventory({ 
-                    name: 'Металлолом', 
-                    icon: '🔩', 
-                    description: 'Восстанавливает 20% корпуса', 
-                    canDrop: true, 
-                    canUse: true 
-                });
-            }
-        });
+        // Удаляем старый обработчик (если есть)
+        lever3.removeEventListener('click', lever3.onclick);
+        // Добавляем новый
+        lever3.addEventListener('click', handleLever3Click);
     }
 });

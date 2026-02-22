@@ -203,7 +203,7 @@ function checkLocationProximity() {
     return inRange;
 }
 
-// Обновление кнопки локации
+// locations.js - функция updateLocationButton
 function updateLocationButton() {
     const existingButton = document.getElementById('location-button-container');
     
@@ -214,29 +214,27 @@ function updateLocationButton() {
             buttonContainer.id = 'location-button-container';
             buttonContainer.style.cssText = `
                 position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
+                top: 20px;
+                left: 20px;
                 z-index: 2000;
-                animation: pulse 1.5s infinite;
+                animation: locationPulse 1.5s infinite;
             `;
             
-            const locationType = window.currentLocation.isEmpty ? '🌊' : '🏭';
             buttonContainer.innerHTML = `
                 <button class="location-button" id="location-button" style="
                     background-color: #1a1a1a;
                     border: 2px solid #5f874a;
                     color: #5f874a;
                     font-family: 'Courier New', monospace;
-                    font-size: 14px;
+                    font-size: 12px;
                     font-weight: bold;
-                    padding: 10px 20px;
+                    padding: 6px 12px;
                     cursor: pointer;
                     text-transform: uppercase;
-                    letter-spacing: 2px;
+                    letter-spacing: 1px;
                     box-shadow: 0 0 15px rgba(95,135,74,0.5);
                 ">
-                    🚀 СТЫКОВКА: ${window.currentLocation.name}
+                    🚀 ДОСТУПНА СТЫКОВКА: ${window.currentLocation.name}
                 </button>
             `;
             

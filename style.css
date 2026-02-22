@@ -2063,9 +2063,8 @@ body {
 /* Стили для кнопки локации */
 .location-button-container {
     position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 60px; /* чтобы не перекрывало время */
+    left: 20px;
     z-index: 2000;
 }
 
@@ -2074,12 +2073,12 @@ body {
     border: 2px solid #5f874a;
     color: #5f874a;
     font-family: 'Courier New', monospace;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
-    padding: 10px 20px;
+    padding: 6px 12px;
     cursor: pointer;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     box-shadow: 0 0 15px rgba(95,135,74,0.5);
     transition: all 0.3s;
     animation: locationPulse 1.5s infinite;
