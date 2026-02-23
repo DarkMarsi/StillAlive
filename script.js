@@ -1,7 +1,8 @@
 // script.js
 document.addEventListener('DOMContentLoaded', function() {
     
-    // === СОЗДАЕМ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    // === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
+    window.credits = 1000; // Начальный баланс в кредитах
     window.deathScreenShown = false; // чтобы экран смерти не показывался дважды
     window.gamePaused = true;
 
@@ -37,9 +38,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.engineOn = false;
     window.sonarOn = false;
     window.reactorOn = false;
-    // Курс корабля (в градусах, 0 = север)
-    window.shipHeading = 0;
-        // Новые параметры
+
+    window.shipHeading = 0;// Курс корабля (в градусах, 0 = север)
+    
     window.speed = 0;      // скорость в узлах
     window.depth = 0;      // глубина в метрах
 
@@ -391,7 +392,8 @@ document.addEventListener('DOMContentLoaded', function() {
     resetBtn.addEventListener('click', function() {
         playSound('click');
         window.gamePaused = true;
-
+        
+        window.credits = 1000;
         fuel = 100;
         oxygen = 100;
         pressure = 0;

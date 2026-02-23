@@ -444,11 +444,17 @@ function showLocationDialog(location, isDocked = false) {
         
         if (document.getElementById('location-supply')) {
             document.getElementById('location-supply').addEventListener('click', function() {
-                addToScreen('⛽ Пополнение запасов');
-                window.fuel = 100;
-                window.oxygen = 100;
-                window.battery = 100;
-                updateDisplay();
+                const cost = 500; // Стоимость пополнения
+                if (window.credits >= cost) {
+                    window.credits -= cost;
+                    window.fuel = 100;
+                    window.oxygen = 100;
+                    window.battery = 100;
+                    updateDisplay();
+                    addToScreen(`⛽ Запасы пополнены за ${cost}к кредитов`);
+                } else {
+                    addToScreen(`❌ Недостаточно кредитов. Нужно ${cost}к`);
+                }
             });
         }
         

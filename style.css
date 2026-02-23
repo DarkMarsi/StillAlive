@@ -2266,3 +2266,48 @@ body {
     margin: 10px 0;
     opacity: 0.3;
 }
+
+/* Обновленный time-display */
+.time-display {
+    text-align: right;
+    padding: 5px;
+    border-bottom: 1px dashed #5f874a;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.time-display > div {
+    width: 100%;
+}
+
+#time-dock-button {
+    font-size: 12px;
+    padding: 2px 8px;
+    border: 1px solid currentColor;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+#time-dock-button:hover {
+    background-color: #5f874a;
+    color: black !important;
+    border-color: #5f874a;
+}
+
+/* Стили для разных состояний кнопки */
+#time-dock-button[style*="pointer-events: none"] {
+    opacity: 0.3;
+}
+
+/* Анимация для кнопки стыковки */
+@keyframes dockPulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.05); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+#time-dock-button:has(> :contains("СТЫКОВКА")) {
+    animation: dockPulse 1.5s infinite;
+    color: #4a9e5a !important;
+    border-color: #4a9e5a !important;
+}

@@ -155,7 +155,14 @@ function renderInventory() {
             let index = row * 8 + col;
             let item = window.inventory[index];
             let content = item ? item.icon : '';
-            let title = item ? `${item.name} (${item.description || ''})` : 'Пусто';
+            
+            // Формируем title с ценой
+            let title = 'Пусто';
+            if (item) {
+                const valueText = item.value ? ` (${item.valueText})` : '';
+                title = `${item.name}${valueText} - ${item.description || ''}`;
+            }
+            
             inventoryHTML += `<div class="inventory-cell" data-index="${index}" title="${title}">${content}</div>`;
         }
         inventoryHTML += '</div>';

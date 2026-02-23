@@ -104,11 +104,78 @@ function updateDisplay() {
         hullValue.textContent = Math.floor(window.hull) + '%';
     }
     
-    // Обновляем время
+    // Обновляем время и баланс
     let minutes = window.time % 60;
     let hours = Math.floor(window.time / 60);
     if (window.timeDisplay) {
-        window.timeDisplay.textContent = `ВРЕМЯ: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} | ДЕНЬ ${window.day}`;
+        // Форматируем баланс с разделителями тысяч
+        const creditsFormatted = window.credits.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+        
+        // Определяем текст кнопки стыковки
+        let dockButtonText = '⚓ Н/Д';
+        let dockButtonColor = '#5f874a';
+        let dockButtonActive = false;
+        
+        if (window.dockedAt) {
+            dockButtonText = '🔷 НА СТАНЦИИ';
+            dockButtonColor = '#4a9e5a';
+            dockButtonActive = true;
+        } else if (window.showLocationButton && window.currentLocation) {
+            dockButtonActive = true;
+            switch(window.currentLocation.type) {
+                case window.LOCATION_TYPES.DOCK:
+                    dockButtonText = '🚀 СТЫКОВКА';
+                    dockButtonColor = '#4a9e5a';
+                    break;
+                case window.LOCATION_TYPES.DRONE:
+                    dockButtonText = '🎮 ДРОН';
+                    dockButtonColor = '#d4af37';
+                    break;
+                case window.LOCATION_TYPES.HAZARDOUS:
+                    dockButtonText = '⚠️ ОПАСНО';
+                    dockButtonColor = '#d06b6b';
+                    break;
+                default:
+                    dockButtonText = '👁️ НАБЛЮДЕНИЕ';
+                    dockButtonColor = '#5f874a';
+            }
+        }
+        
+        window.timeDisplay.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <div style="color: #d4af37; min-width: 100px; text-align: left;">💰 ${creditsFormatted}к</div>
+                <div id="time-dock-button" style="cursor: ${dockButtonActive ? 'pointer' : 'default'}; 
+                                                    color: ${dockButtonColor}; 
+                                                    border: 1px solid ${dockButtonColor}; 
+                                                    border-radius: 12px; 
+                                                    padding: 2px 12px;
+                                                    font-size: 12px;
+                                                    ${dockButtonActive ? 'opacity: 1;' : 'opacity: 0.3;'}
+                                                    ${dockButtonActive && dockButtonText === '🚀 СТЫКОВКА' ? 'animation: dockPulse 1.5s infinite;' : ''}">
+                    ${dockButtonText}
+                </div>
+                <div style="min-width: 140px; text-align: right;">ВРЕМЯ: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} | ДЕНЬ ${window.day}</div>
+            </div>
+        `;
+        
+        // Добавляем обработчик для кнопки стыковки
+        const dockBtn = document.getElementById('time-dock-button');
+        if (dockBtn && dockButtonActive) {
+            // Удаляем старый обработчик, чтобы не было дублирования
+            dockBtn.replaceWith(dockBtn.cloneNode(true));
+            const newDockBtn = document.getElementById('time-dock-button');
+            newDockBtn.addEventListener('click', function() {
+                if (window.dockedAt) {
+                    showLocationDialog(window.dockedAt, true);
+                } else if (window.showLocationButton && window.currentLocation) {
+                    if (window.currentLocation.type === window.LOCATION_TYPES.DOCK) {
+                        dockToLocation(window.currentLocation);
+                    } else {
+                        showLocationDialog(window.currentLocation);
+                    }
+                }
+            });
+        }
     }
 }
 
