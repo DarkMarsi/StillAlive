@@ -300,6 +300,52 @@ window.COMMANDS = {
             switchTab('signals');
         }
     },
+
+    'drone': {
+        name: 'drone',
+        description: 'Отправить дрон для сбора ресурсов',
+        usage: 'drone',
+        action: function() {
+            if (window.showLocationButton && window.currentLocation) {
+                if (window.currentLocation.type === window.LOCATION_TYPES.DRONE) {
+                    showLocationDialog(window.currentLocation);
+                } else {
+                    addToScreen('❌ В этой локации нельзя использовать дрон');
+                }
+            } else {
+                addToScreen('❌ Нет доступных локаций для дрона');
+            }
+        }
+    },
+
+    'examine': {
+        name: 'examine',
+        description: 'Осмотреть текущую локацию',
+        usage: 'examine',
+        action: function() {
+            if (window.showLocationButton && window.currentLocation) {
+                let typeText = '';
+                switch(window.currentLocation.type) {
+                    case window.LOCATION_TYPES.DOCK:
+                        typeText = '🟢 Стыковочная станция';
+                        break;
+                    case window.LOCATION_TYPES.DRONE:
+                        typeText = '🟡 Ресурсная зона';
+                        break;
+                    case window.LOCATION_TYPES.HAZARDOUS:
+                        typeText = '🔴 Опасная зона';
+                        break;
+                    default:
+                        typeText = '⚪ Пустая зона';
+                }
+                addToScreen(`📍 Локация: ${window.currentLocation.name}`);
+                addToScreen(`📋 Тип: ${typeText}`);
+                addToScreen(`📏 Расстояние: ${Math.round(getDistanceToLocation())}м`);
+            } else {
+                addToScreen('❌ Рядом нет локаций');
+            }
+        }
+    },
     
     'quit': {
         name: 'quit',
@@ -334,3 +380,4 @@ function processCommand(input) {
         addToScreen(`❌ Команда не найдена: '${cmdName}'. Введите /help для списка команд.`);
     }
 }
+
