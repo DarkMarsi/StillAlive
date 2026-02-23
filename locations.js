@@ -231,61 +231,8 @@ function checkLocationProximity() {
 function updateLocationButton() {
     const existingButton = document.getElementById('location-button-container');
     
-    if (window.showLocationButton && window.currentLocation && !window.dockedAt) {
-        if (!existingButton) {
-            const buttonContainer = document.createElement('div');
-            buttonContainer.className = 'location-button-container';
-            buttonContainer.id = 'location-button-container';
-            
-            let buttonColor = '#5f874a';
-            let buttonText = '';
-            let animation = 'locationPulse 1.5s infinite';
-            
-            switch(window.currentLocation.type) {
-                case window.LOCATION_TYPES.DOCK:
-                    buttonColor = '#4a9e5a';
-                    buttonText = '🚀 ДОСТУПНА СТЫКОВКА';
-                    break;
-                case window.LOCATION_TYPES.DRONE:
-                    buttonColor = '#d4af37';
-                    buttonText = '🎮 ДОСТУПЕН СБОР ДРОНОМ';
-                    break;
-                case window.LOCATION_TYPES.HAZARDOUS:
-                    buttonColor = '#d06b6b';
-                    buttonText = '⚠️ ОПАСНАЯ ЗОНА';
-                    animation = 'hazardPulse 1s infinite';
-                    break;
-                default:
-                    buttonColor = '#5f874a';
-                    buttonText = '👁️ ЗОНА НАБЛЮДЕНИЯ';
-            }
-            
-            buttonContainer.innerHTML = `
-                <button class="location-button" id="location-button" style="
-                    background-color: #1a1a1a;
-                    border: 2px solid ${buttonColor};
-                    color: ${buttonColor};
-                    font-family: 'Courier New', monospace;
-                    font-size: 12px;
-                    font-weight: bold;
-                    padding: 6px 12px;
-                    cursor: pointer;
-                    text-transform: uppercase;
-                    letter-spacing: 1px;
-                    box-shadow: 0 0 15px ${buttonColor}80;
-                    animation: ${animation};
-                ">
-                    ${buttonText}: ${window.currentLocation.name}
-                </button>
-            `;
-            
-            document.body.appendChild(buttonContainer);
-            
-            document.getElementById('location-button').addEventListener('click', function() {
-                showLocationDialog(window.currentLocation);
-            });
-        }
-    } else if (existingButton && !window.dockedAt) {
+    // Полностью удаляем старую кнопку, если она есть
+    if (existingButton) {
         existingButton.remove();
     }
 }
@@ -300,39 +247,16 @@ function dockToLocation(location) {
     window.dockedAt = location;
     window.showLocationButton = false;
     
-    // Удаляем мигающую кнопку
+    // Удаляем старую кнопку если есть
     const existingButton = document.getElementById('location-button-container');
     if (existingButton) existingButton.remove();
     
-    // Создаем кнопку с названием станции
-    const dockedButtonContainer = document.createElement('div');
-    dockedButtonContainer.className = 'location-button-container';
-    dockedButtonContainer.id = 'docked-button-container';
-    dockedButtonContainer.innerHTML = `
-        <button class="location-button" id="docked-button" style="
-            background-color: #1a1a1a;
-            border: 2px solid #4a9e5a;
-            color: #4a9e5a;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            font-weight: bold;
-            padding: 6px 12px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 0 15px #4a9e5a80;
-        ">
-            🚀 ПРИСТЫКОВАН К: ${location.name}
-        </button>
-    `;
-    
-    document.body.appendChild(dockedButtonContainer);
-    
-    document.getElementById('docked-button').addEventListener('click', function() {
-        showLocationDialog(location, true);
-    });
+    // НЕ создаём отдельную кнопку - информация будет в верхней панели
     
     addToScreen(`✅ Стыковка с ${location.name} завершена`);
+    
+    // Обновляем отображение, чтобы показать новую кнопку в верхней панели
+    updateDisplay();
     return true;
 }
 
@@ -346,14 +270,17 @@ function undock() {
     const locationName = window.dockedAt.name;
     window.dockedAt = null;
     
-    // Удаляем кнопку стыковки
-    const dockedButton = document.getElementById('docked-button-container');
-    if (dockedButton) dockedButton.remove();
+    // Удаляем старую кнопку если есть
+    const existingButton = document.getElementById('location-button-container');
+    if (existingButton) existingButton.remove();
     
     // Возвращаем мигающую кнопку, если мы всё ещё в зоне
     checkLocationProximity();
     
     addToScreen(`🚀 Отстыковка от ${locationName} завершена`);
+    
+    // Обновляем отображение
+    updateDisplay();
     return true;
 }
 
@@ -444,7 +371,7 @@ function showLocationDialog(location, isDocked = false) {
         
         if (document.getElementById('location-supply')) {
             document.getElementById('location-supply').addEventListener('click', function() {
-                const cost = 500; // Стоимость пополнения
+                const cost = 200; // Стоимость пополнения
                 if (window.credits >= cost) {
                     window.credits -= cost;
                     window.fuel = 100;

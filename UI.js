@@ -111,68 +111,66 @@ function updateDisplay() {
         // Форматируем баланс с разделителями тысяч
         const creditsFormatted = window.credits.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
         
-        // Определяем текст кнопки стыковки
-        let dockButtonText = '⚓ Н/Д';
-        let dockButtonColor = '#5f874a';
-        let dockButtonActive = false;
+        // Определяем текст кнопки в центре
+        let centerButtonText = '⚓ Н/Д';
+        let centerButtonColor = '#5f874a';
+        let centerButtonActive = false;
         
         if (window.dockedAt) {
-            dockButtonText = '🔷 НА СТАНЦИИ';
-            dockButtonColor = '#4a9e5a';
-            dockButtonActive = true;
+            // После стыковки - кнопка открывает меню станции
+            centerButtonText = `🔷 ${window.dockedAt.name}`;
+            centerButtonColor = '#4a9e5a';
+            centerButtonActive = true;
         } else if (window.showLocationButton && window.currentLocation) {
-            dockButtonActive = true;
+            // До стыковки - просто уведомление (неактивно)
             switch(window.currentLocation.type) {
                 case window.LOCATION_TYPES.DOCK:
-                    dockButtonText = '🚀 СТЫКОВКА';
-                    dockButtonColor = '#4a9e5a';
+                    centerButtonText = '🚀 СТЫКОВКА ДОСТУПНА';
+                    centerButtonColor = '#4a9e5a';
                     break;
                 case window.LOCATION_TYPES.DRONE:
-                    dockButtonText = '🎮 ДРОН';
-                    dockButtonColor = '#d4af37';
+                    centerButtonText = '🎮 ДРОН ДОСТУПЕН';
+                    centerButtonColor = '#d4af37';
                     break;
                 case window.LOCATION_TYPES.HAZARDOUS:
-                    dockButtonText = '⚠️ ОПАСНО';
-                    dockButtonColor = '#d06b6b';
+                    centerButtonText = '⚠️ ОПАСНАЯ ЗОНА';
+                    centerButtonColor = '#d06b6b';
                     break;
                 default:
-                    dockButtonText = '👁️ НАБЛЮДЕНИЕ';
-                    dockButtonColor = '#5f874a';
+                    centerButtonText = '👁️ ЗОНА НАБЛЮДЕНИЯ';
+                    centerButtonColor = '#5f874a';
             }
+            // До стыковки кнопка неактивна - взаимодействие только через терминал
+            centerButtonActive = false;
         }
         
         window.timeDisplay.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                 <div style="color: #d4af37; min-width: 100px; text-align: left;">💰 ${creditsFormatted}к</div>
-                <div id="time-dock-button" style="cursor: ${dockButtonActive ? 'pointer' : 'default'}; 
-                                                    color: ${dockButtonColor}; 
-                                                    border: 1px solid ${dockButtonColor}; 
+                <div id="time-center-button" style="cursor: ${centerButtonActive ? 'pointer' : 'default'}; 
+                                                    color: ${centerButtonColor}; 
+                                                    border: 1px solid ${centerButtonColor}; 
                                                     border-radius: 12px; 
                                                     padding: 2px 12px;
                                                     font-size: 12px;
-                                                    ${dockButtonActive ? 'opacity: 1;' : 'opacity: 0.3;'}
-                                                    ${dockButtonActive && dockButtonText === '🚀 СТЫКОВКА' ? 'animation: dockPulse 1.5s infinite;' : ''}">
-                    ${dockButtonText}
+                                                    ${centerButtonActive ? 'opacity: 1;' : 'opacity: 0.5;'}
+                                                    ${!centerButtonActive && !window.dockedAt ? 'pointer-events: none;' : ''}
+                                                    ${!centerButtonActive && window.showLocationButton ? 'animation: none;' : ''}">
+                    ${centerButtonText}
                 </div>
                 <div style="min-width: 140px; text-align: right;">ВРЕМЯ: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} | ДЕНЬ ${window.day}</div>
             </div>
         `;
         
-        // Добавляем обработчик для кнопки стыковки
-        const dockBtn = document.getElementById('time-dock-button');
-        if (dockBtn && dockButtonActive) {
+        // Добавляем обработчик для кнопки в центре (только если пристыкованы)
+        const centerBtn = document.getElementById('time-center-button');
+        if (centerBtn && window.dockedAt) {
             // Удаляем старый обработчик, чтобы не было дублирования
-            dockBtn.replaceWith(dockBtn.cloneNode(true));
-            const newDockBtn = document.getElementById('time-dock-button');
-            newDockBtn.addEventListener('click', function() {
+            centerBtn.replaceWith(centerBtn.cloneNode(true));
+            const newCenterBtn = document.getElementById('time-center-button');
+            newCenterBtn.addEventListener('click', function() {
                 if (window.dockedAt) {
                     showLocationDialog(window.dockedAt, true);
-                } else if (window.showLocationButton && window.currentLocation) {
-                    if (window.currentLocation.type === window.LOCATION_TYPES.DOCK) {
-                        dockToLocation(window.currentLocation);
-                    } else {
-                        showLocationDialog(window.currentLocation);
-                    }
                 }
             });
         }
