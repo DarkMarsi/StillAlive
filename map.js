@@ -1,6 +1,3 @@
-// map.js - управление картой
-
-// Показать информацию о клетке
 // Показать информацию о клетке
 function showTileInfo(row, col, event) {
     const oldTooltip = document.getElementById('tile-tooltip');

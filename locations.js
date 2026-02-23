@@ -268,7 +268,15 @@ function checkLocationProximity() {
     if (!window.gameMap || window.playerRow === undefined) return false;
     
     const currentTile = window.gameMap[window.playerRow][window.playerCol];
-    if (!currentTile.locations || !currentTile.locations.discovered) return false;
+    if (!currentTile.locations || !currentTile.locations.discovered) {
+        // Если нет локации или она не обнаружена - скрываем кнопку
+        if (window.showLocationButton) {
+            window.showLocationButton = false;
+            window.currentLocation = null;
+            updateDisplay();
+        }
+        return false;
+    }
     
     const activePoint = currentTile.locations.points[currentTile.locations.activePointIndex];
     
@@ -282,36 +290,25 @@ function checkLocationProximity() {
     
     const inRange = distance < 100;
     
-    // Если мы пристыкованы, кнопка не показывается
-    if (window.dockedAt) {
+    // Обновляем глобальные переменные для отображения кнопки
+    if (inRange && !window.dockedAt) {
+        // Мы в зоне и не пристыкованы - показываем кнопку
+        if (!window.showLocationButton || window.currentLocation !== currentTile.locations) {
+            window.showLocationButton = true;
+            window.currentLocation = currentTile.locations;
+            updateDisplay(); // Обновляем интерфейс, чтобы появилась кнопка
+            addToScreen(`📡 Обнаружена локация: ${currentTile.locations.name}`);
+        }
+    } else {
+        // Мы вне зоны - скрываем кнопку
         if (window.showLocationButton) {
             window.showLocationButton = false;
-            updateLocationButton();
+            window.currentLocation = null;
+            updateDisplay();
         }
-        return false;
-    }
-    
-    if (inRange && !window.showLocationButton) {
-        window.showLocationButton = true;
-        window.currentLocation = currentTile.locations;
-        updateLocationButton();
-    } else if (!inRange && window.showLocationButton) {
-        window.showLocationButton = false;
-        window.currentLocation = null;
-        updateLocationButton();
     }
     
     return inRange;
-}
-
-// Обновление кнопки локации
-function updateLocationButton() {
-    const existingButton = document.getElementById('location-button-container');
-    
-    // Полностью удаляем старую кнопку, если она есть
-    if (existingButton) {
-        existingButton.remove();
-    }
 }
 
 // Функция стыковки

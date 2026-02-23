@@ -28,13 +28,12 @@ window.MISSIONS_DB = {
         id: 'mission_1',
         title: 'Срочная поставка',
         giver: 'Маркус',
-        location: 'Аванпост жилой', // Где берётся задание
+        location: 'Аванпост жилой',
         type: window.MISSION_TYPES.DELIVERY,
         description: 'Механику на верфи срочно нужен металлолом для ремонта.',
         objective: {
             item: 'SCRAP_METAL',
             amount: 2
-            // targetLocation не указан - значит сдавать там же, где брали
         },
         reward: {
             credits: 200,
@@ -52,12 +51,12 @@ window.MISSIONS_DB = {
         id: 'mission_2',
         title: 'Секретный пакет',
         giver: 'Вера',
-        location: 'Охранный пост', // Где берётся задание
+        location: 'Охранный пост',
         type: window.MISSION_TYPES.TRANSPORT,
         description: 'Нужно доставить запечатанный пакет на исследовательскую базу.',
         objective: {
-            targetLocation: 'Работающая исследовательская база', // Куда доставить
-            targetNpc: 'Доктор Чен' // Кому отдать (необязательно)
+            targetLocation: 'Работающая исследовательская база',
+            targetNpc: 'Доктор Чен'
         },
         reward: {
             credits: 300,
@@ -75,7 +74,7 @@ window.MISSIONS_DB = {
         id: 'mission_3',
         title: 'Разведка сектора',
         giver: 'Грег',
-        location: 'Механик (мастерская)', // Где берётся задание
+        location: 'Механик (мастерская)',
         type: window.MISSION_TYPES.EXPLORE,
         description: 'Нужно проверить сектор F13. Там была какая-то активность.',
         objective: {
@@ -139,6 +138,118 @@ function initMissions() {
             status: window.MISSION_STATUS.AVAILABLE
         });
     });
+}
+
+// Получить статус клетки для отображения на карте
+function getCellMissionStatus(row, col) {
+    const key = `${row}_${col}`;
+    const missionIds = window.missionCells[key] || [];
+    if (missionIds.length === 0) return null;
+    
+    let hasActive = false;
+    let hasCompleted = false;
+    
+    missionIds.forEach(id => {
+        const mission = window.activeMissions.find(m => m.id === id);
+        if (mission) {
+            if (mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS) {
+                hasCompleted = true;
+            } else {
+                hasActive = true;
+            }
+        }
+    });
+    
+    if (hasCompleted) return 'completed';
+    if (hasActive) return 'active';
+    return null;
+}
+
+// Показать задания для локации
+function showMissionsForLocation(locationName) {
+    const missions = window.availableMissions[locationName] || [];
+    const activeHere = window.activeMissions.filter(m => m.location === locationName);
+    
+    let missionsHTML = `
+        <div class="location-dialog" style="max-width: 600px;">
+            <div class="location-dialog-content">
+                <div class="location-dialog-title">📋 ЗАДАНИЯ</div>
+    `;
+    
+    if (missions.length === 0 && activeHere.length === 0) {
+        missionsHTML += `<div class="location-dialog-text">Нет доступных заданий</div>`;
+    } else {
+        if (activeHere.length > 0) {
+            missionsHTML += `<div style="color: #d4af37; margin: 10px 0;">АКТИВНЫЕ ЗАДАНИЯ:</div>`;
+            activeHere.forEach(mission => {
+                missionsHTML += `
+                    <div style="background-color: #1a1a1a; border: 1px solid #d4af37; border-radius: 8px; padding: 10px; margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #d4af37; font-weight: bold;">${mission.title}</span>
+                            <span style="color: #5f874a;">⚡ АКТИВНО</span>
+                        </div>
+                        <div style="color: #5f874a; margin-top: 5px;">${mission.description}</div>
+                        <button class="location-btn" id="abandon-${mission.id}" style="margin-top: 10px; border-color: #d06b6b; color: #d06b6b;">❌ ОТКАЗАТЬСЯ</button>
+                    </div>
+                `;
+            });
+        }
+        
+        if (missions.length > 0) {
+            missionsHTML += `<div style="color: #4a9e5a; margin: 10px 0;">ДОСТУПНЫЕ ЗАДАНИЯ:</div>`;
+            missions.forEach(mission => {
+                missionsHTML += `
+                    <div style="background-color: #1a1a1a; border: 1px solid #4a9e5a; border-radius: 8px; padding: 10px; margin: 10px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #4a9e5a; font-weight: bold;">${mission.title}</span>
+                            <span style="color: #d4af37;">💰 ${mission.reward.credits}к</span>
+                        </div>
+                        <div style="color: #5f874a; margin-top: 5px;">${mission.description}</div>
+                        <div style="color: #8bc34a; font-size: 11px; margin-top: 5px;">От: ${mission.giver}</div>
+                        <button class="location-btn" id="accept-${mission.id}" style="margin-top: 10px;">✅ ПРИНЯТЬ</button>
+                    </div>
+                `;
+            });
+        }
+    }
+    
+    missionsHTML += `
+                <div class="location-dialog-buttons">
+                    <button class="location-btn" id="missions-close">ЗАКРЫТЬ</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const dialogDiv = document.createElement('div');
+    dialogDiv.innerHTML = missionsHTML;
+    dialogDiv.className = 'location-dialog-container';
+    document.body.appendChild(dialogDiv);
+    
+    // Обработчики для принятия заданий
+    missions.forEach(mission => {
+        const acceptBtn = document.getElementById(`accept-${mission.id}`);
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', () => {
+                acceptMission(mission.id);
+                dialogDiv.remove();
+            });
+        }
+    });
+    
+    // Обработчики для отказа от заданий
+    activeHere.forEach(mission => {
+        const abandonBtn = document.getElementById(`abandon-${mission.id}`);
+        if (abandonBtn) {
+            abandonBtn.addEventListener('click', () => {
+                abandonMission(mission.id);
+                dialogDiv.remove();
+                showMissionsForLocation(locationName);
+            });
+        }
+    });
+    
+    document.getElementById('missions-close').addEventListener('click', () => dialogDiv.remove());
 }
 
 // Принять задание
@@ -209,8 +320,6 @@ function markMissionCells(mission) {
             }
         }
     }
-    
-    // Для типа 3 - клетка с заданием уже помечена (startCell)
 }
 
 // Получить координаты клетки по названию локации
@@ -238,20 +347,17 @@ function checkMissionCompletion() {
         switch(mission.type) {
             case window.MISSION_TYPES.DELIVERY:
             case window.MISSION_TYPES.COLLECT:
-                // Проверяем, есть ли предмет в инвентаре
                 const itemCount = window.inventory.filter(item => item && item.id === mission.objective.item).length;
                 conditionsMet = itemCount >= mission.objective.amount;
                 break;
                 
             case window.MISSION_TYPES.EXPLORE:
-                // Проверяем, посещена ли нужная клетка
                 conditionsMet = (window.playerRow === mission.objective.row && 
                                 window.playerCol === mission.objective.col);
                 break;
                 
             case window.MISSION_TYPES.TRANSPORT:
             case window.MISSION_TYPES.MESSAGE:
-                // Для типа 2 - проверяем, в нужной ли мы клетке
                 const targetCell = getCellCoordinates(mission.objective.targetLocation);
                 conditionsMet = targetCell && 
                                window.playerRow === targetCell.row && 
@@ -259,7 +365,6 @@ function checkMissionCompletion() {
                 break;
         }
         
-        // Если условия выполнены, меняем статус
         if (conditionsMet && mission.status === window.MISSION_STATUS.ACTIVE) {
             mission.status = window.MISSION_STATUS.COMPLETED_CONDITIONS;
             mission.conditionsMet = true;
@@ -267,7 +372,6 @@ function checkMissionCompletion() {
             addToScreen(`✅ Условия задания выполнены: ${mission.title}`);
             addToScreen(`💬 Вернитесь к ${mission.giver} за наградой`);
             
-            // Обновляем карту
             if (document.getElementById('tab-map').classList.contains('active')) {
                 renderMap();
             }
@@ -282,27 +386,23 @@ function completeMission(missionId, locationName) {
     
     const mission = window.activeMissions[index];
     
-    // Проверяем, можно ли сдать здесь
     let canComplete = false;
     
     switch(mission.type) {
         case window.MISSION_TYPES.DELIVERY:
         case window.MISSION_TYPES.COLLECT:
         case window.MISSION_TYPES.KILL:
-            // Тип 1 - сдаём там же, где брали
             canComplete = (locationName === mission.location);
             break;
             
         case window.MISSION_TYPES.TRANSPORT:
         case window.MISSION_TYPES.MESSAGE:
-            // Тип 2 - сдаём в точке назначения
             canComplete = (locationName === mission.objective.targetLocation);
             break;
             
         case window.MISSION_TYPES.EXPLORE:
         case window.MISSION_TYPES.SCAN:
         case window.MISSION_TYPES.ACTIVATE:
-            // Тип 3 - можно сдать удалённо (в любой момент)
             canComplete = true;
             break;
     }
@@ -312,7 +412,6 @@ function completeMission(missionId, locationName) {
         return false;
     }
     
-    // Для типа 1 - забираем предметы
     if (mission.type === window.MISSION_TYPES.DELIVERY || 
         mission.type === window.MISSION_TYPES.COLLECT) {
         if (mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS) {
@@ -326,7 +425,6 @@ function completeMission(missionId, locationName) {
         }
     }
     
-    // Выдаём награду
     window.credits += mission.reward.credits;
     
     mission.reward.items.forEach(itemId => {
@@ -339,13 +437,9 @@ function completeMission(missionId, locationName) {
     addToScreen(`💰 Получено: ${mission.reward.credits}к кредитов`);
     addToScreen(`💬 ${mission.giver}: "${mission.dialogue.complete}"`);
     
-    // Удаляем из активных
     window.activeMissions.splice(index, 1);
-    
-    // Очищаем клетки от этого задания
     removeMissionFromCells(missionId);
     
-    // Обновляем карту
     if (document.getElementById('tab-map').classList.contains('active')) {
         renderMap();
     }
@@ -360,7 +454,6 @@ function abandonMission(missionId) {
     
     const mission = window.activeMissions[index];
     
-    // Нельзя отказаться от выполненного задания
     if (mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS && 
         (mission.type === window.MISSION_TYPES.EXPLORE || 
          mission.type === window.MISSION_TYPES.SCAN || 
@@ -371,7 +464,6 @@ function abandonMission(missionId) {
     
     window.activeMissions.splice(index, 1);
     
-    // Возвращаем в доступные
     if (!window.availableMissions[mission.location]) {
         window.availableMissions[mission.location] = [];
     }
@@ -380,12 +472,10 @@ function abandonMission(missionId) {
         status: window.MISSION_STATUS.AVAILABLE
     });
     
-    // Очищаем клетки
     removeMissionFromCells(missionId);
     
     addToScreen(`❌ Отказ от задания: ${mission.title}`);
     
-    // Обновляем карту
     if (document.getElementById('tab-map').classList.contains('active')) {
         renderMap();
     }
@@ -401,27 +491,5 @@ function removeMissionFromCells(missionId) {
     }
 }
 
-// Получить статус клетки для отображения на карте
-function getCellMissionStatus(row, col) {
-    const key = `${row}_${col}`;
-    const missionIds = window.missionCells[key] || [];
-    if (missionIds.length === 0) return null;
-    
-    let hasActive = false;
-    let hasCompleted = false;
-    
-    missionIds.forEach(id => {
-        const mission = window.activeMissions.find(m => m.id === id);
-        if (mission) {
-            if (mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS) {
-                hasCompleted = true;
-            } else {
-                hasActive = true;
-            }
-        }
-    });
-    
-    if (hasCompleted) return 'completed'; // мигает, нужно сдать
-    if (hasActive) return 'active'; // просто жёлтая
-    return null;
-}
+// Инициализация при загрузке
+initMissions();

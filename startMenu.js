@@ -1,7 +1,7 @@
 // startMenu.js - стартовое меню с контрактом
 
 // Переменная для хранения имени игрока
-window.window.playerName = 'ЗАКЛЮЧЕННЫЙ-734';
+window.playerName = 'ЗАКЛЮЧЕННЫЙ-734';
 
 // Функция для отображения стартового меню
 function showStartMenu() {
