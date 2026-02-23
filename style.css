@@ -2301,13 +2301,20 @@ body {
 
 /* Анимация для кнопки стыковки */
 @keyframes dockPulse {
-    0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.05); }
-    100% { opacity: 1; transform: scale(1); }
+    0% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px currentColor; }
+    50% { opacity: 1; transform: scale(1.05); box-shadow: 0 0 20px currentColor; }
+    100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px currentColor; }
 }
 
 #time-dock-button:has(> :contains("СТЫКОВКА")) {
     animation: dockPulse 1.5s infinite;
     color: #4a9e5a !important;
     border-color: #4a9e5a !important;
+}
+
+/* Анимация для опасной зоны */
+@keyframes hazardPulse {
+    0% { opacity: 1; transform: scale(1); background-color: rgba(208, 107, 107, 0.2); }
+    50% { opacity: 1; transform: scale(1.1); background-color: rgba(208, 107, 107, 0.4); }
+    100% { opacity: 1; transform: scale(1); background-color: rgba(208, 107, 107, 0.2); }
 }

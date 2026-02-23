@@ -115,6 +115,7 @@ function updateDisplay() {
         let centerButtonText = '⚓ Н/Д';
         let centerButtonColor = '#5f874a';
         let centerButtonActive = false;
+        let centerButtonAnimation = '';
         
         if (window.dockedAt) {
             // После стыковки - кнопка открывает меню станции
@@ -122,43 +123,50 @@ function updateDisplay() {
             centerButtonColor = '#4a9e5a';
             centerButtonActive = true;
         } else if (window.showLocationButton && window.currentLocation) {
-            // До стыковки - просто уведомление (неактивно)
+            // До стыковки - уведомление (активное, но взаимодействие только через терминал)
+            centerButtonActive = true; // Делаем активным для анимации и внешнего вида
             switch(window.currentLocation.type) {
                 case window.LOCATION_TYPES.DOCK:
                     centerButtonText = '🚀 СТЫКОВКА ДОСТУПНА';
                     centerButtonColor = '#4a9e5a';
+                    centerButtonAnimation = 'animation: dockPulse 1.5s infinite;';
                     break;
                 case window.LOCATION_TYPES.DRONE:
                     centerButtonText = '🎮 ДРОН ДОСТУПЕН';
                     centerButtonColor = '#d4af37';
+                    centerButtonAnimation = 'animation: dockPulse 1.5s infinite;';
                     break;
                 case window.LOCATION_TYPES.HAZARDOUS:
                     centerButtonText = '⚠️ ОПАСНАЯ ЗОНА';
                     centerButtonColor = '#d06b6b';
+                    centerButtonAnimation = 'animation: hazardPulse 1s infinite;';
                     break;
                 default:
                     centerButtonText = '👁️ ЗОНА НАБЛЮДЕНИЯ';
                     centerButtonColor = '#5f874a';
+                    centerButtonAnimation = 'animation: dockPulse 1.5s infinite;';
             }
-            // До стыковки кнопка неактивна - взаимодействие только через терминал
-            centerButtonActive = false;
         }
         
         window.timeDisplay.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                <div style="color: #d4af37; min-width: 100px; text-align: left;">💰 ${creditsFormatted}к</div>
+                <div style="color: #d4af37; min-width: 100px; text-align: left; font-weight: bold; text-shadow: 0 0 5px #d4af37;">💰 ${creditsFormatted}к</div>
                 <div id="time-center-button" style="cursor: ${centerButtonActive ? 'pointer' : 'default'}; 
                                                     color: ${centerButtonColor}; 
-                                                    border: 1px solid ${centerButtonColor}; 
+                                                    border: 2px solid ${centerButtonColor}; 
                                                     border-radius: 12px; 
                                                     padding: 2px 12px;
                                                     font-size: 12px;
-                                                    ${centerButtonActive ? 'opacity: 1;' : 'opacity: 0.5;'}
-                                                    ${!centerButtonActive && !window.dockedAt ? 'pointer-events: none;' : ''}
-                                                    ${!centerButtonActive && window.showLocationButton ? 'animation: none;' : ''}">
+                                                    font-weight: bold;
+                                                    background-color: rgba(0,0,0,0.8);
+                                                    box-shadow: 0 0 10px ${centerButtonColor};
+                                                    opacity: 1;
+                                                    text-shadow: 0 0 5px ${centerButtonColor};
+                                                    ${centerButtonActive ? 'pointer-events: auto;' : 'pointer-events: none;'}
+                                                    ${centerButtonAnimation}">
                     ${centerButtonText}
                 </div>
-                <div style="min-width: 140px; text-align: right;">ВРЕМЯ: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} | ДЕНЬ ${window.day}</div>
+                <div style="min-width: 140px; text-align: right; font-weight: bold;">ВРЕМЯ: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')} | ДЕНЬ ${window.day}</div>
             </div>
         `;
         

@@ -312,7 +312,7 @@ function showLocationDialog(location, isDocked = false) {
                 dialogText = 'Вы находитесь на станции. Можно отдохнуть или пополнить запасы.';
                 actionButton = `
                     <button class="location-btn" id="location-rest" style="border-color: #4a9e5a; color: #4a9e5a;">🛏️ ОТДОХНУТЬ</button>
-                    <button class="location-btn" id="location-supply" style="border-color: #d4af37; color: #d4af37;">⛽ ПОПОЛНИТЬ ЗАПАСЫ</button>
+                    <button class="location-btn" id="location-supply" style="border-color: #d4af37; color: #d4af37;">⛽ ПОПОЛНИТЬ ЗАПАСЫ 200к</button>
                 `;
             } else {
                 dialogText = 'Безопасная зона. Можно пристыковаться.';
@@ -371,7 +371,7 @@ function showLocationDialog(location, isDocked = false) {
         
         if (document.getElementById('location-supply')) {
             document.getElementById('location-supply').addEventListener('click', function() {
-                const cost = 200; // Стоимость пополнения
+                const cost = 200;
                 if (window.credits >= cost) {
                     window.credits -= cost;
                     window.fuel = 100;
