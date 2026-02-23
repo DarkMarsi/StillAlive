@@ -120,16 +120,17 @@ function generateLocationsForTile(tile, row, col) {
     let locationList;
     let locationType;
     
-    if (rand < 0.4) {
+    // НОВЫЕ ВЕРОЯТНОСТИ:
+    if (rand < 0.5) { // 50% - пустые (было 40%)
         locationList = EMPTY_LOCATIONS;
         locationType = window.LOCATION_TYPES.EMPTY;
-    } else if (rand < 0.6) {
+    } else if (rand < 0.8) { // 30% - стыковка (было 20%)
         locationList = DOCK_LOCATIONS;
         locationType = window.LOCATION_TYPES.DOCK;
-    } else if (rand < 0.85) {
+    } else if (rand < 0.95) { // 15% - дрон (было 25%)
         locationList = DRONE_LOCATIONS;
         locationType = window.LOCATION_TYPES.DRONE;
-    } else {
+    } else { // 5% - опасные (было 15%)
         locationList = HAZARDOUS_LOCATIONS;
         locationType = window.LOCATION_TYPES.HAZARDOUS;
     }

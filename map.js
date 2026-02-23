@@ -1,6 +1,7 @@
 // map.js - управление картой
 
 // Показать информацию о клетке
+// Показать информацию о клетке
 function showTileInfo(row, col, event) {
     const oldTooltip = document.getElementById('tile-tooltip');
     if (oldTooltip) oldTooltip.remove();
@@ -28,15 +29,23 @@ function showTileInfo(row, col, event) {
     }
 
     let locationInfo = '';
+    let coordsInfo = '';
+    
     if (tile.discovered && tile.locations) {
         if (tile.visited) {
-            // Если посетили клетку - показываем точное название
+            // Если посетили клетку - показываем точное название и координаты
             locationInfo = `<div>Локация: ${tile.locations.name}</div>`;
+            
+            // ДОБАВЛЯЕМ КООРДИНАТЫ ЛОКАЦИИ
+            if (tile.locationCoords) {
+                coordsInfo = `<div style="color: #d4af37; margin-top: 5px;">📍 Координаты локации: X: ${tile.locationCoords.x}м, Y: ${tile.locationCoords.y}м</div>`;
+            }
+            
             if (!tile.locations.isEmpty) {
                 locationInfo += `<div style="color: #d4af37;">⚡ Активная зона</div>`;
             }
         } else {
-            // Если только обнаружили - показываем тип (пустая/населенная)
+            // Если только обнаружили - показываем тип
             locationInfo = `<div>Тип: ${tile.locations.isEmpty ? 'Пустая' : 'Населенная'}</div>`;
         }
     }
@@ -66,6 +75,7 @@ function showTileInfo(row, col, event) {
         <div>Статус: ${status}</div>
         <div>Тип: ${typeInfo}</div>
         ${locationInfo}
+        ${coordsInfo}
         ${tile.visited ? '<div style="color: #5f874a; margin-top: 5px;">✓ Исследовано</div>' : ''}
     `;
     
@@ -233,8 +243,9 @@ function enterTile(row, col, direction) {
             tile.locations.discovered = true;
             const coords = tile.locationCoords || tile.locations.points[tile.locations.activePointIndex];
             addToScreen(`📡 ОБНАРУЖЕН НЕИЗВЕСТНЫЙ ОБЪЕКТ`);
-            addToScreen(`    Координаты: X: ${coords.x} м, Y: ${coords.y} м`);
-            addToScreen(`    Тип: ${tile.locations.isEmpty ? 'Атмосферный' : 'Населенный'}`);
+            addToScreen(`    📍 Название: ${tile.locations.name}`);
+            addToScreen(`    📍 Координаты: X: ${coords.x} м, Y: ${coords.y} м`);
+            addToScreen(`    📍 Тип: ${tile.locations.isEmpty ? 'Атмосферный' : 'Населенный'}`);
         }
     
     }

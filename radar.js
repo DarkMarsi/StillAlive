@@ -27,18 +27,25 @@ function scanSurroundings() {
                     tile.discovered = true;
                     scanned = true;
                     
-                    // С вероятностью 10% добавляем сообщение об обнаружении
-                    if (Math.random() < 0.1) {
-                        let direction = '';
-                        if (dRow < 0) direction += 'север';
-                        else if (dRow > 0) direction += 'юг';
-                        
-                        if (dCol < 0) direction += 'запад';
-                        else if (dCol > 0) direction += 'восток';
-                        
-                        // Получаем информацию о типе клетки
-                        const tileInfo = getTileScanInfo(tile);
-                        addToScreen(`📡 Радар обнаружил сектор к ${direction}: ${tileInfo}`);
+                    // Всегда показываем информацию об обнаружении
+                    let direction = '';
+                    if (dRow < 0) direction += 'север';
+                    else if (dRow > 0) direction += 'юг';
+                    
+                    if (dCol < 0) direction += 'запад';
+                    else if (dCol > 0) direction += 'восток';
+                    
+                    // Получаем информацию о типе клетки
+                    const tileInfo = getTileScanInfo(tile);
+                    
+                    // ДОБАВЛЯЕМ СООБЩЕНИЕ В ТЕРМИНАЛ
+                    addToScreen(`📡 Радар обнаружил сектор к ${direction}: ${tileInfo}`);
+                    
+                    // Если в клетке есть локация, показываем её координаты
+                    if (tile.locations) {
+                        const coords = tile.locationCoords || { x: '???', y: '???' };
+                        addToScreen(`    📍 Объект: ${tile.locations.name || 'Неизвестный объект'}`);
+                        addToScreen(`    📍 Координаты: X: ${coords.x}м, Y: ${coords.y}м`);
                     }
                 }
             }
