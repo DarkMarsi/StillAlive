@@ -28,6 +28,13 @@ function toggleDevMode() {
         addToScreen('    • Бесконечная батарея');
         addToScreen('    • Неуязвимый корпус');
         addToScreen('    • Модули не повреждаются');
+        
+        // Автоматически создаём тестовые локации
+        setTimeout(() => {
+            if (typeof generateTestLocations === 'function') {
+                generateTestLocations();
+            }
+        }, 500);
     } else {
         // При выключении отключаем все опции
         window.devMode.infiniteFuel = false;
@@ -41,6 +48,134 @@ function toggleDevMode() {
     
     // Обновляем отображение кнопки
     updateDevModeButton();
+}
+
+// Функция для создания тестовых локаций вокруг игрока
+function generateTestLocations() {
+    if (!window.gameMap) {
+        console.error('Карта не инициализирована');
+        return;
+    }
+    
+    // Координаты тестовых клеток (M20, L20, J20, K20)
+    const testCells = [
+        { 
+            row: 19, col: 12, 
+            name: 'Аванпост жилой', 
+            type: window.LOCATION_TYPES.DOCK
+        },
+        { 
+            row: 19, col: 11, 
+            name: 'Морское чудовище', 
+            type: window.LOCATION_TYPES.HAZARDOUS
+        },
+        { 
+            row: 19, col: 9, 
+            name: 'Обломки', 
+            type: window.LOCATION_TYPES.DRONE
+        },
+        { 
+            row: 19, col: 10, 
+            name: 'Коралловый риф', 
+            type: window.LOCATION_TYPES.EMPTY
+        }
+    ];
+    
+    testCells.forEach(cell => {
+        const { row, col, name, type } = cell;
+        
+        // Проверяем, что клетка существует
+        if (!window.gameMap[row] || !window.gameMap[row][col]) return;
+        
+        const tile = window.gameMap[row][col];
+        
+        // Создаём тестовую локацию
+        tile.isEmpty = false;
+        tile.discovered = true; // Сразу открываем
+        tile.visited = false; // Но не посещена
+        tile.type = 'normal'; // Тип клетки для карты
+        
+        // Создаём точки в клетке
+        const points = [];
+        const cellSize = window.cellSize || 1000;
+        const step = cellSize / 3;
+        const maxOffset = 100;
+        
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                let baseX = step/2 + i * step;
+                let baseY = step/2 + j * step;
+                
+                let offsetX = (Math.random() * 2 - 1) * maxOffset;
+                let offsetY = (Math.random() * 2 - 1) * maxOffset;
+                
+                let x = Math.round(Math.min(950, Math.max(50, baseX + offsetX)));
+                let y = Math.round(Math.min(950, Math.max(50, baseY + offsetY)));
+                
+                points.push({ x, y, visited: false });
+            }
+        }
+        
+        // Активная точка в центре
+        const activePointIndex = 4; // центр сетки 3x3
+        
+        tile.locations = {
+            points: points,
+            activePointIndex: activePointIndex,
+            name: name,
+            type: type,
+            discovered: true
+        };
+        
+        tile.locationCoords = {
+            x: points[activePointIndex].x,
+            y: points[activePointIndex].y
+        };
+        
+        console.log(`Тестовая локация создана: ${name} в секторе ${String.fromCharCode(65 + col)}${row + 1}`);
+    });
+    
+    // Добавляем NPC для Аванпоста жилой
+    if (!window.NPCS_DB) window.NPCS_DB = {};
+    
+    // Очищаем старые тестовые NPC
+    delete window.NPCS_DB['marcus_test'];
+    delete window.NPCS_DB['stranger_test'];
+    
+    // Добавляем Маркуса (торговца)
+    window.NPCS_DB['marcus_test'] = {
+        id: 'marcus_test',
+        name: 'Маркус',
+        type: window.NPC_TYPES.TRADER,
+        location: 'Аванпост жилой',
+        sprite: '👨‍💼',
+        description: 'Бывший торговый представитель, теперь торгует запчастями и ресурсами.',
+        dialogue: {
+            greeting: 'О, свежая кровь! Нужны запчасти? У меня есть всё, кроме совести.',
+            bye: 'Возвращайся, если найдешь что-то ценное.'
+        }
+    };
+    
+    // Добавляем Таинственного незнакомца (квестодателя)
+    window.NPCS_DB['stranger_test'] = {
+        id: 'stranger_test',
+        name: 'Таинственный незнакомец',
+        type: window.NPC_TYPES.MISSION_GIVER,
+        location: 'Аванпост жилой',
+        sprite: '🥷',
+        description: 'Человек в плаще, лица не видно.',
+        dialogue: {
+            greeting: 'Я слежу за тобой. У меня есть предложение...',
+            bye: 'Подумай. Я найду тебя сам.'
+        }
+    };
+    
+    // Обновляем карту, если она открыта
+    if (document.getElementById('tab-map').classList.contains('active')) {
+        renderMap();
+    }
+    
+    addToScreen('🛠️ Тестовые локации созданы в секторах M20, L20, J20, K20');
 }
 
 // Функция показа меню разработчика
@@ -84,6 +219,9 @@ function showDevMenu() {
                 </div>
                 <div class="dev-menu-item" id="dev-reveal-map">
                     <span class="dev-item-label">🗺️ Открыть всю карту</span>
+                </div>
+                <div class="dev-menu-item" id="dev-test-locations">
+                    <span class="dev-item-label">🧪 Создать тестовые локации</span>
                 </div>
             </div>
         </div>
@@ -169,6 +307,14 @@ function showDevMenu() {
             renderMap();
         }
         addToScreen('🛠️ Вся карта открыта');
+        menuDiv.remove();
+    });
+    
+    // Обработчик для тестовых локаций
+    menuDiv.querySelector('#dev-test-locations').addEventListener('click', () => {
+        if (typeof generateTestLocations === 'function') {
+            generateTestLocations();
+        }
         menuDiv.remove();
     });
     

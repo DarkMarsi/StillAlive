@@ -116,27 +116,103 @@ function generateLocationsForTile(tile, row, col) {
         return tile;
     }
     
-    const rand = Math.random();
+    // Получаем историю последних клеток
+    if (!window.lastTileTypes) window.lastTileTypes = [];
+    
+    // Считаем, сколько подряд было пустых и непустых
+    let emptyCount = 0;
+    let dockCount = 0;
+    let droneCount = 0;
+    let hazardCount = 0;
+    
+    // Проходим по истории с конца
+    for (let i = window.lastTileTypes.length - 1; i >= 0; i--) {
+        const type = window.lastTileTypes[i];
+        if (type === 'empty') emptyCount++;
+        else if (type === 'dock') dockCount++;
+        else if (type === 'drone') droneCount++;
+        else if (type === 'hazard') hazardCount++;
+        else break; // как только тип меняется - останавливаемся
+    }
+    
+    let rand = Math.random();
     let locationList;
     let locationType;
     
-    // НОВЫЕ ВЕРОЯТНОСТИ:
-    if (rand < 0.5) { // 50% - пустые (было 40%)
+    // Применяем ограничения
+    if (dockCount >= 2) {
+        // Слишком много стыковок подряд - делаем пустую
         locationList = EMPTY_LOCATIONS;
         locationType = window.LOCATION_TYPES.EMPTY;
-    } else if (rand < 0.8) { // 30% - стыковка (было 20%)
-        locationList = DOCK_LOCATIONS;
-        locationType = window.LOCATION_TYPES.DOCK;
-    } else if (rand < 0.95) { // 15% - дрон (было 25%)
-        locationList = DRONE_LOCATIONS;
-        locationType = window.LOCATION_TYPES.DRONE;
-    } else { // 5% - опасные (было 15%)
-        locationList = HAZARDOUS_LOCATIONS;
-        locationType = window.LOCATION_TYPES.HAZARDOUS;
+    } else if (droneCount >= 3) {
+        // Слишком много дронов подряд - делаем пустую
+        locationList = EMPTY_LOCATIONS;
+        locationType = window.LOCATION_TYPES.EMPTY;
+    } else if (hazardCount >= 2) {
+        // Слишком много опасных подряд - делаем пустую
+        locationList = EMPTY_LOCATIONS;
+        locationType = window.LOCATION_TYPES.EMPTY;
+    } else if (emptyCount >= 6) {
+        // Слишком много пустых подряд - делаем что-то другое
+        // Выбираем случайно из непустых типов
+        const nonEmptyRand = Math.random();
+        if (nonEmptyRand < 0.6) { // 60% - стыковка
+            locationList = DOCK_LOCATIONS;
+            locationType = window.LOCATION_TYPES.DOCK;
+        } else if (nonEmptyRand < 0.9) { // 30% - дрон
+            locationList = DRONE_LOCATIONS;
+            locationType = window.LOCATION_TYPES.DRONE;
+        } else { // 10% - опасные
+            locationList = HAZARDOUS_LOCATIONS;
+            locationType = window.LOCATION_TYPES.HAZARDOUS;
+        }
+    } else {
+        // Нормальный случайный выбор с новыми вероятностями
+        if (rand < 0.5) { // 50% - пустые
+            locationList = EMPTY_LOCATIONS;
+            locationType = window.LOCATION_TYPES.EMPTY;
+        } else if (rand < 0.8) { // 30% - стыковка
+            locationList = DOCK_LOCATIONS;
+            locationType = window.LOCATION_TYPES.DOCK;
+        } else if (rand < 0.95) { // 15% - дрон
+            locationList = DRONE_LOCATIONS;
+            locationType = window.LOCATION_TYPES.DRONE;
+        } else { // 5% - опасные
+            locationList = HAZARDOUS_LOCATIONS;
+            locationType = window.LOCATION_TYPES.HAZARDOUS;
+        }
     }
     
-    let locationName = locationList[Math.floor(Math.random() * locationList.length)];
+    // Запоминаем тип в историю
+    window.lastTileTypes.push(locationType);
+    if (window.lastTileTypes.length > 20) window.lastTileTypes.shift();
     
+    // Выбираем название локации
+    let locationName;
+    let lastLocation = window.lastLocation || '';
+    
+    if (locationType === window.LOCATION_TYPES.EMPTY) {
+        // Пустая клетка - выбираем из списка пустых локаций
+        do {
+            locationName = EMPTY_LOCATIONS[Math.floor(Math.random() * EMPTY_LOCATIONS.length)];
+        } while (locationName === lastLocation && EMPTY_LOCATIONS.length > 1);
+    } else if (locationType === window.LOCATION_TYPES.DOCK) {
+        do {
+            locationName = DOCK_LOCATIONS[Math.floor(Math.random() * DOCK_LOCATIONS.length)];
+        } while (locationName === lastLocation && DOCK_LOCATIONS.length > 1);
+    } else if (locationType === window.LOCATION_TYPES.DRONE) {
+        do {
+            locationName = DRONE_LOCATIONS[Math.floor(Math.random() * DRONE_LOCATIONS.length)];
+        } while (locationName === lastLocation && DRONE_LOCATIONS.length > 1);
+    } else {
+        do {
+            locationName = HAZARDOUS_LOCATIONS[Math.floor(Math.random() * HAZARDOUS_LOCATIONS.length)];
+        } while (locationName === lastLocation && HAZARDOUS_LOCATIONS.length > 1);
+    }
+    
+    window.lastLocation = locationName;
+    
+    // Генерируем 9 точек в клетке (сетка 3x3) с случайным смещением
     const points = [];
     const cellSize = window.cellSize || 1000;
     const step = cellSize / 3;
@@ -306,6 +382,7 @@ function showLocationDialog(location, isDocked = false) {
     let actionButton = '';
     let dialogText = '';
     let dockedStatus = isDocked ? '🟢 ПРИСТЫКОВАН' : '';
+    let completableMissions = [];
     
     switch(location.type) {
         case window.LOCATION_TYPES.DOCK:
@@ -316,7 +393,7 @@ function showLocationDialog(location, isDocked = false) {
                 dialogText = 'Вы находитесь на станции. Здесь есть люди, с которыми можно поговорить.';
 
                 // Получаем задания, которые можно сдать здесь
-                const completableMissions = window.activeMissions.filter(mission => {
+                completableMissions = window.activeMissions.filter(mission => {
                     if (mission.status !== window.MISSION_STATUS.COMPLETED_CONDITIONS) return false;
                     
                     switch(mission.type) {
@@ -330,7 +407,7 @@ function showLocationDialog(location, isDocked = false) {
                         case window.MISSION_TYPES.EXPLORE:
                         case window.MISSION_TYPES.SCAN:
                         case window.MISSION_TYPES.ACTIVATE:
-                            return true; // можно сдать где угодно
+                            return true;
                         default:
                             return false;
                     }
@@ -504,18 +581,6 @@ function showLocationDialog(location, isDocked = false) {
                     this.style.borderColor = '#5f874a';
                 });
             });     
-
-            completableMissions.forEach(mission => {
-                const completeBtn = document.getElementById(`complete-${mission.id}`);
-                if (completeBtn) {
-                    completeBtn.addEventListener('click', () => {
-                        completeMission(mission.id, location.name);
-                        dialogDiv.remove();
-                        // Показываем обновлённый диалог
-                        showLocationDialog(location, true);
-                    });
-                }
-            });
         }
 
         // Обработчик для кнопки заданий
