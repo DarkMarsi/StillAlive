@@ -50,6 +50,41 @@ function showTileInfo(row, col, event) {
         }
     }
 
+        // Информация о заданиях в этой клетке
+        let missionsInfo = '';
+        const key = `${row}_${col}`;
+        const missionIds = window.missionCells?.[key] || [];
+
+        if (missionIds.length > 0) {
+            missionsInfo = '<div style="margin-top: 8px; border-top: 1px solid #e1d882; padding-top: 5px;">';
+            missionsInfo += '<div style="color: #e1d882; font-weight: bold;">📋 ЗАДАНИЯ:</div>';
+            
+            missionIds.forEach(id => {
+                const mission = window.activeMissions.find(m => m.id === id);
+                if (mission) {
+                    let statusText = '';
+                    if (mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS) {
+                        statusText = '✅ ГОТОВО К СДАЧЕ';
+                    } else {
+                        statusText = '⚡ АКТИВНО';
+                    }
+                    
+                    missionsInfo += `
+                        <div style="margin-top: 5px; padding: 5px; background-color: #1a1a1a; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #e1d882;">${mission.title}</span>
+                                <span style="color: ${mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS ? '#4a9e5a' : '#d4af37'};">${statusText}</span>
+                            </div>
+                            <div style="font-size: 11px; color: #5f874a;">${mission.description}</div>
+                        </div>
+                    `;
+                }
+            });
+            
+            missionsInfo += '</div>';
+        }
+
+
     const tooltip = document.createElement('div');
     tooltip.id = 'tile-tooltip';
     tooltip.className = 'tile-tooltip';
@@ -132,6 +167,14 @@ function renderMap() {
             } else {
                 displayChar = '?';
                 tileClass += ' undiscovered';
+            }
+
+            // Проверяем статус задания для этой клетки
+            const missionStatus = getCellMissionStatus ? getCellMissionStatus(row, col) : null;
+            if (missionStatus === 'active') {
+                tileClass += ' mission-active';
+            } else if (missionStatus === 'completed') {
+                tileClass += ' mission-completed';
             }
             
             mapHTML += `<div class="${tileClass}" data-row="${row}" data-col="${col}" data-type="${tile.type}">${displayChar}</div>`;
@@ -246,8 +289,7 @@ function enterTile(row, col, direction) {
             addToScreen(`    📍 Название: ${tile.locations.name}`);
             addToScreen(`    📍 Координаты: X: ${coords.x} м, Y: ${coords.y} м`);
             addToScreen(`    📍 Тип: ${tile.locations.isEmpty ? 'Атмосферный' : 'Населенный'}`);
-        }
-    
+        }    
     }
     
     // Открываем соседние клетки

@@ -314,6 +314,27 @@ function showLocationDialog(location, isDocked = false) {
                 const npcsHere = typeof getNPCsByLocation === 'function' ? getNPCsByLocation(location.name) : [];
                 
                 dialogText = 'Вы находитесь на станции. Здесь есть люди, с которыми можно поговорить.';
+
+                // Получаем задания, которые можно сдать здесь
+                const completableMissions = window.activeMissions.filter(mission => {
+                    if (mission.status !== window.MISSION_STATUS.COMPLETED_CONDITIONS) return false;
+                    
+                    switch(mission.type) {
+                        case window.MISSION_TYPES.DELIVERY:
+                        case window.MISSION_TYPES.COLLECT:
+                        case window.MISSION_TYPES.KILL:
+                            return location.name === mission.location;
+                        case window.MISSION_TYPES.TRANSPORT:
+                        case window.MISSION_TYPES.MESSAGE:
+                            return location.name === mission.objective.targetLocation;
+                        case window.MISSION_TYPES.EXPLORE:
+                        case window.MISSION_TYPES.SCAN:
+                        case window.MISSION_TYPES.ACTIVATE:
+                            return true; // можно сдать где угодно
+                        default:
+                            return false;
+                    }
+                });
                 
                 // Кнопки действий
                 actionButton = `
@@ -376,6 +397,27 @@ function showLocationDialog(location, isDocked = false) {
             
             npcList += '</div></div>';
         }
+    }
+
+    let missionsToComplete = '';
+    if (completableMissions.length > 0) {
+        missionsToComplete = '<div style="margin: 15px 0; border-top: 1px solid #4a9e5a; padding-top: 15px;">';
+        missionsToComplete += '<div style="color: #4a9e5a; margin-bottom: 10px;">✅ ГОТОВЫ К СДАЧЕ:</div>';
+        
+        completableMissions.forEach(mission => {
+            missionsToComplete += `
+                <div style="background-color: #1a1a1a; border: 1px solid #4a9e5a; border-radius: 8px; padding: 10px; margin: 10px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #4a9e5a; font-weight: bold;">${mission.title}</span>
+                        <span style="color: #d4af37;">💰 ${mission.reward.credits}к</span>
+                    </div>
+                    <div style="color: #5f874a; margin-top: 5px;">${mission.description}</div>
+                    <button class="location-btn" id="complete-${mission.id}" style="margin-top: 10px; background-color: #4a9e5a; color: black; border-color: #4a9e5a;">✅ ПОЛУЧИТЬ НАГРАДУ</button>
+                </div>
+            `;
+        });
+        
+        missionsToComplete += '</div>';
     }
 
     const dialogHTML = `
@@ -461,6 +503,18 @@ function showLocationDialog(location, isDocked = false) {
                     this.style.backgroundColor = '#1a1a1a';
                     this.style.borderColor = '#5f874a';
                 });
+            });     
+
+            completableMissions.forEach(mission => {
+                const completeBtn = document.getElementById(`complete-${mission.id}`);
+                if (completeBtn) {
+                    completeBtn.addEventListener('click', () => {
+                        completeMission(mission.id, location.name);
+                        dialogDiv.remove();
+                        // Показываем обновлённый диалог
+                        showLocationDialog(location, true);
+                    });
+                }
             });
         }
 

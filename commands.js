@@ -166,6 +166,37 @@ window.COMMANDS = {
         }
     },
     
+    'missions': {
+        name: 'missions',
+        description: 'Показать активные задания',
+        usage: 'missions',
+        action: function() {
+            if (window.activeMissions.length === 0) {
+                addToScreen('📋 Нет активных заданий');
+                return;
+            }
+            
+            addToScreen(`╔════════════════════════════════╗`);
+            addToScreen(`  АКТИВНЫЕ ЗАДАНИЯ (${window.activeMissions.length}):`);
+            addToScreen(`  ════════════════════════`);
+            
+            window.activeMissions.forEach(mission => {
+                let status = '';
+                if (mission.status === window.MISSION_STATUS.COMPLETED_CONDITIONS) {
+                    status = '✅ ГОТОВО';
+                } else {
+                    status = '⚡ В ПРОЦЕССЕ';
+                }
+                
+                addToScreen(`  ${mission.title}`);
+                addToScreen(`  ${status} | Награда: ${mission.reward.credits}к`);
+                addToScreen(`  ---`);
+            });
+            
+            addToScreen(`╚════════════════════════════════╝`);
+        }
+    },
+
     'modules': {
         name: 'modules',
         description: 'Показать состояние модулей',

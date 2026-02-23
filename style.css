@@ -2318,3 +2318,36 @@ body {
     50% { opacity: 1; transform: scale(1.1); background-color: rgba(208, 107, 107, 0.4); }
     100% { opacity: 1; transform: scale(1); background-color: rgba(208, 107, 107, 0.2); }
 }
+
+/* Стили для клеток с заданиями */
+.map-tile.mission-active {
+    background-color: #3a3a1a;
+    border-color: #e1d882;
+    color: #e1d882;
+    box-shadow: 0 0 8px #e1d882;
+    position: relative;
+}
+
+.map-tile.mission-completed {
+    background-color: #3a3a1a;
+    border-color: #e1d882;
+    color: #e1d882;
+    animation: missionPulse 1s infinite;
+    position: relative;
+}
+
+.map-tile.mission-active::after,
+.map-tile.mission-completed::after {
+    content: '●';
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    font-size: 8px;
+    color: #e1d882;
+}
+
+@keyframes missionPulse {
+    0% { box-shadow: 0 0 5px #e1d882; }
+    50% { box-shadow: 0 0 15px #e1d882; }
+    100% { box-shadow: 0 0 5px #e1d882; }
+}
