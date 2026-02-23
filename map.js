@@ -241,6 +241,12 @@ function enterTile(row, col, direction) {
     
     // Открываем соседние клетки
     discoverAdjacent(row, col);
+
+    // Проверяем выполнение заданий при входе в новую клетку
+    if (typeof checkMissionCompletion === 'function') {
+        checkMissionCompletion();
+    }
+    
 }
 
 function discoverAdjacent(row, col) {

@@ -309,11 +309,23 @@ function showLocationDialog(location, isDocked = false) {
     switch(location.type) {
         case window.LOCATION_TYPES.DOCK:
             if (isDocked) {
-                dialogText = 'Вы находитесь на станции. Можно отдохнуть или пополнить запасы.';
+                // Получаем NPC на этой станции
+                const npcsHere = typeof getNPCsByLocation === 'function' ? getNPCsByLocation(location.name) : [];
+                
+                dialogText = 'Вы находитесь на станции. Здесь есть люди, с которыми можно поговорить.';
+                
+                // Кнопки действий
                 actionButton = `
                     <button class="location-btn" id="location-rest" style="border-color: #4a9e5a; color: #4a9e5a;">🛏️ ОТДОХНУТЬ</button>
-                    <button class="location-btn" id="location-supply" style="border-color: #d4af37; color: #d4af37;">⛽ ПОПОЛНИТЬ ЗАПАСЫ 200к</button>
+                    <button class="location-btn" id="location-supply" style="border-color: #d4af37; color: #d4af37;">⛽ ЗАПАСЫ (200к)</button>
                 `;
+                
+                // Добавляем кнопку заданий, если есть квестодатели
+                if (npcsHere.some(npc => npc.type === window.NPC_TYPES?.MISSION_GIVER)) {
+                    actionButton += `
+                        <button class="location-btn" id="location-missions" style="border-color: #d06b6b; color: #d06b6b;">⚠️ ЗАДАНИЯ</button>
+                    `;
+                }
             } else {
                 dialogText = 'Безопасная зона. Можно пристыковаться.';
                 actionButton = '<button class="location-btn" id="location-action">🚀 ПРИСТЫКОВАТЬСЯ</button>';
@@ -334,12 +346,44 @@ function showLocationDialog(location, isDocked = false) {
             dialogText = 'Атмосферная зона. Наблюдение...';
     }
     
+    let npcList = '';
+    if (isDocked) {
+        const npcsHere = typeof getNPCsByLocation === 'function' ? getNPCsByLocation(location.name) : [];
+        if (npcsHere.length > 0) {
+            npcList = '<div style="margin: 15px 0; border-top: 1px solid #5f874a; padding-top: 15px;">';
+            npcList += '<div style="color: #8bc34a; margin-bottom: 10px;">👥 ПЕРСОНАЛ СТАНЦИИ:</div>';
+            npcList += '<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">';
+            
+            npcsHere.forEach(npc => {
+                npcList += `
+                    <div class="npc-badge" data-npc-id="${npc.id}" style="
+                        background-color: #1a1a1a;
+                        border: 1px solid #5f874a;
+                        border-radius: 8px;
+                        padding: 8px 12px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        transition: all 0.2s;
+                    ">
+                        <span style="font-size: 20px;">${npc.sprite}</span>
+                        <span style="color: #5f874a;">${npc.name}</span>
+                    </div>
+                `;
+            });
+            
+            npcList += '</div></div>';
+        }
+    }
+
     const dialogHTML = `
         <div class="location-dialog">
             <div class="location-dialog-content">
                 <div class="location-dialog-title">${location.name}</div>
                 ${dockedStatus ? `<div style="color: #4a9e5a; text-align: center; margin-bottom: 10px;">${dockedStatus}</div>` : ''}
                 <div class="location-dialog-text">${dialogText}</div>
+                ${npcList}  <!-- ЭТО НОВАЯ СТРОКА -->
                 <div class="location-dialog-buttons" style="flex-wrap: wrap; gap: 10px;">
                     ${actionButton}
                     <button class="location-btn" id="location-close">ЗАКРЫТЬ</button>
@@ -392,6 +436,42 @@ function showLocationDialog(location, isDocked = false) {
             });
         }
     }
+
+        // Обработчики для NPC
+        if (isDocked) {
+            document.querySelectorAll('.npc-badge').forEach(badge => {
+                badge.addEventListener('click', function() {
+                    const npcId = this.dataset.npcId;
+                    const npc = window.NPCS_DB?.[npcId];
+                    if (npc) {
+                        // Если есть функция показа NPC
+                        if (typeof showNPCDialog === 'function') {
+                            showNPCDialog(npc);
+                        }
+                    }
+                });
+                
+                badge.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#2a2a2a';
+                    this.style.borderColor = '#8bc34a';
+                });
+                
+                badge.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '#1a1a1a';
+                    this.style.borderColor = '#5f874a';
+                });
+            });
+        }
+
+        // Обработчик для кнопки заданий
+        if (document.getElementById('location-missions')) {
+            document.getElementById('location-missions').addEventListener('click', function() {
+                dialogDiv.remove();
+                if (typeof showMissionsForLocation === 'function') {
+                    showMissionsForLocation(location.name);
+                }
+            });
+        }
     
     if (location.type === window.LOCATION_TYPES.DRONE) {
         document.getElementById('location-action').addEventListener('click', function() {
