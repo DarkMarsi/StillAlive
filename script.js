@@ -469,7 +469,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function sendMessage() {
         let message = messageInput.value.trim();
         if (message !== '') {
-            addToScreen('📝 ' + message);
+            // Проверяем, является ли ввод командой (начинается с /)
+            if (message.startsWith('/')) {
+                // Убираем первый символ и передаём в обработчик команд
+                const command = message.substring(1);
+                processCommand(command);
+            } else {
+                // Обычное сообщение в чат
+                addToScreen('📝 ' + message);
+            }
             messageInput.value = '';
         }
     }
