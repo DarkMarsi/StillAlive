@@ -8,9 +8,11 @@ window.LOCATION_TYPES = {
     HAZARDOUS: 'hazardous'       // Опасно, требует осторожности
 };
 
+// Состояние стыковки
+window.dockedAt = null; // null или объект локации, к которой пристыкованы
+
 // Список пустых локаций (без взаимодействия)
 const EMPTY_LOCATIONS = [
-    // Природные образования
     "Коралловый риф",
     "Каменный риф",
     "Мертвый риф",
@@ -31,20 +33,18 @@ const EMPTY_LOCATIONS = [
     "Грязевые гейзеры",
     "Подводный вулкан (спящий)",
     
-    // Флора и фауна
     "Лес водорослей",
     "Биолюминесцентное поле",
     "Кладбище морских животных",
     "Кости гиганта",
     "Труп левиафана",
     
-    // Пустые и атмосферные
     "Зона тишины",
     "Мираж",
     "Пустой туннель"
 ];
 
-// Список локаций для стыковки (жилые, безопасные сооружения)
+// Список локаций для стыковки
 const DOCK_LOCATIONS = [
     "Аванпост жилой",
     "Охранный пост",
@@ -56,7 +56,7 @@ const DOCK_LOCATIONS = [
     "Шлюз-бункер"
 ];
 
-// Список локаций для сбора дроном (ресурсные точки, обломки)
+// Список локаций для сбора дроном
 const DRONE_LOCATIONS = [
     "Заброшенная исследовательская база (затоплена)",
     "Аванпост затонувший",
@@ -76,9 +76,9 @@ const DRONE_LOCATIONS = [
     "Обломки спутника"
 ];
 
-// Список опасных локаций (нужно быть осторожным)
+// Список опасных локаций
 const HAZARDOUS_LOCATIONS = [
-    "Отшельник (жилище) - может быть опасно",
+    "Отшельник (жилище)",
     "Таинственный незнакомец (убежище)",
     "Наркоманы и безумцы (лагерь)",
     "Затонувший город",
@@ -108,7 +108,6 @@ function getLocationType(name) {
 
 // Генерация точек интереса для клетки
 function generateLocationsForTile(tile, row, col) {
-    // Определяем, будет ли клетка иметь локацию (70% шанс)
     const hasLocation = Math.random() < 0.7;
     
     if (!hasLocation) {
@@ -117,29 +116,26 @@ function generateLocationsForTile(tile, row, col) {
         return tile;
     }
     
-    // Выбираем тип локации с вероятностями
     const rand = Math.random();
     let locationList;
     let locationType;
     
-    if (rand < 0.4) { // 40% - пустые
+    if (rand < 0.4) {
         locationList = EMPTY_LOCATIONS;
         locationType = window.LOCATION_TYPES.EMPTY;
-    } else if (rand < 0.6) { // 20% - стыковка
+    } else if (rand < 0.6) {
         locationList = DOCK_LOCATIONS;
         locationType = window.LOCATION_TYPES.DOCK;
-    } else if (rand < 0.85) { // 25% - дрон
+    } else if (rand < 0.85) {
         locationList = DRONE_LOCATIONS;
         locationType = window.LOCATION_TYPES.DRONE;
-    } else { // 15% - опасные
+    } else {
         locationList = HAZARDOUS_LOCATIONS;
         locationType = window.LOCATION_TYPES.HAZARDOUS;
     }
     
-    // Выбираем название локации
     let locationName = locationList[Math.floor(Math.random() * locationList.length)];
     
-    // Генерируем 9 точек в клетке (сетка 3x3) с случайным смещением
     const points = [];
     const cellSize = window.cellSize || 1000;
     const step = cellSize / 3;
@@ -160,14 +156,12 @@ function generateLocationsForTile(tile, row, col) {
         }
     }
 
-    // Сортируем точки по расстоянию от центра
     points.sort((a, b) => {
         const distA = Math.sqrt(Math.pow(a.x - 500, 2) + Math.pow(a.y - 500, 2));
         const distB = Math.sqrt(Math.pow(b.x - 500, 2) + Math.pow(b.y - 500, 2));
         return distA - distB;
     });
     
-    // Выбираем активную точку
     let activePointIndex;
     const randPoint = Math.random();
     
@@ -175,7 +169,6 @@ function generateLocationsForTile(tile, row, col) {
     else if (randPoint < 0.7) activePointIndex = 3 + Math.floor(Math.random() * 3);
     else activePointIndex = 6 + Math.floor(Math.random() * 3);
     
-    // Сохраняем данные в клетке
     tile.isEmpty = false;
     tile.locations = {
         points: points,
@@ -212,6 +205,15 @@ function checkLocationProximity() {
     
     const inRange = distance < 100;
     
+    // Если мы пристыкованы, кнопка не показывается
+    if (window.dockedAt) {
+        if (window.showLocationButton) {
+            window.showLocationButton = false;
+            updateLocationButton();
+        }
+        return false;
+    }
+    
     if (inRange && !window.showLocationButton) {
         window.showLocationButton = true;
         window.currentLocation = currentTile.locations;
@@ -229,28 +231,29 @@ function checkLocationProximity() {
 function updateLocationButton() {
     const existingButton = document.getElementById('location-button-container');
     
-    if (window.showLocationButton && window.currentLocation) {
+    if (window.showLocationButton && window.currentLocation && !window.dockedAt) {
         if (!existingButton) {
             const buttonContainer = document.createElement('div');
             buttonContainer.className = 'location-button-container';
             buttonContainer.id = 'location-button-container';
             
-            // Определяем цвет кнопки в зависимости от типа локации
-            let buttonColor = '#5f874a'; // зеленый по умолчанию
+            let buttonColor = '#5f874a';
             let buttonText = '';
+            let animation = 'locationPulse 1.5s infinite';
             
             switch(window.currentLocation.type) {
                 case window.LOCATION_TYPES.DOCK:
-                    buttonColor = '#4a9e5a'; // ярко-зеленый
+                    buttonColor = '#4a9e5a';
                     buttonText = '🚀 ДОСТУПНА СТЫКОВКА';
                     break;
                 case window.LOCATION_TYPES.DRONE:
-                    buttonColor = '#d4af37'; // золотой
+                    buttonColor = '#d4af37';
                     buttonText = '🎮 ДОСТУПЕН СБОР ДРОНОМ';
                     break;
                 case window.LOCATION_TYPES.HAZARDOUS:
-                    buttonColor = '#d06b6b'; // красный
+                    buttonColor = '#d06b6b';
                     buttonText = '⚠️ ОПАСНАЯ ЗОНА';
+                    animation = 'hazardPulse 1s infinite';
                     break;
                 default:
                     buttonColor = '#5f874a';
@@ -270,6 +273,7 @@ function updateLocationButton() {
                     text-transform: uppercase;
                     letter-spacing: 1px;
                     box-shadow: 0 0 15px ${buttonColor}80;
+                    animation: ${animation};
                 ">
                     ${buttonText}: ${window.currentLocation.name}
                 </button>
@@ -281,20 +285,112 @@ function updateLocationButton() {
                 showLocationDialog(window.currentLocation);
             });
         }
-    } else if (existingButton) {
+    } else if (existingButton && !window.dockedAt) {
         existingButton.remove();
     }
 }
 
+// Функция стыковки
+function dockToLocation(location) {
+    if (!location || location.type !== window.LOCATION_TYPES.DOCK) {
+        addToScreen('❌ Здесь нельзя пристыковаться');
+        return false;
+    }
+    
+    window.dockedAt = location;
+    window.showLocationButton = false;
+    
+    // Удаляем мигающую кнопку
+    const existingButton = document.getElementById('location-button-container');
+    if (existingButton) existingButton.remove();
+    
+    // Создаем кнопку с названием станции
+    const dockedButtonContainer = document.createElement('div');
+    dockedButtonContainer.className = 'location-button-container';
+    dockedButtonContainer.id = 'docked-button-container';
+    dockedButtonContainer.innerHTML = `
+        <button class="location-button" id="docked-button" style="
+            background-color: #1a1a1a;
+            border: 2px solid #4a9e5a;
+            color: #4a9e5a;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 6px 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px #4a9e5a80;
+        ">
+            🚀 ПРИСТЫКОВАН К: ${location.name}
+        </button>
+    `;
+    
+    document.body.appendChild(dockedButtonContainer);
+    
+    document.getElementById('docked-button').addEventListener('click', function() {
+        showLocationDialog(location, true);
+    });
+    
+    addToScreen(`✅ Стыковка с ${location.name} завершена`);
+    return true;
+}
+
+// Функция отстыковки
+function undock() {
+    if (!window.dockedAt) {
+        addToScreen('❌ Корабль не пристыкован');
+        return false;
+    }
+    
+    const locationName = window.dockedAt.name;
+    window.dockedAt = null;
+    
+    // Удаляем кнопку стыковки
+    const dockedButton = document.getElementById('docked-button-container');
+    if (dockedButton) dockedButton.remove();
+    
+    // Возвращаем мигающую кнопку, если мы всё ещё в зоне
+    checkLocationProximity();
+    
+    addToScreen(`🚀 Отстыковка от ${locationName} завершена`);
+    return true;
+}
+
+// Получить расстояние до текущей локации
+function getDistanceToLocation() {
+    if (!window.currentLocation) return Infinity;
+    
+    const currentTile = window.gameMap[window.playerRow][window.playerCol];
+    const activePoint = currentTile.locations.points[currentTile.locations.activePointIndex];
+    
+    const pointGlobalX = window.playerCol * window.cellSize + activePoint.x;
+    const pointGlobalY = window.playerRow * window.cellSize + activePoint.y;
+    
+    return Math.sqrt(
+        Math.pow(window.globalX - pointGlobalX, 2) + 
+        Math.pow(window.globalY - pointGlobalY, 2)
+    );
+}
+
 // Показать диалог локации
-function showLocationDialog(location) {
+function showLocationDialog(location, isDocked = false) {
     let actionButton = '';
     let dialogText = '';
+    let dockedStatus = isDocked ? '🟢 ПРИСТЫКОВАН' : '';
     
     switch(location.type) {
         case window.LOCATION_TYPES.DOCK:
-            dialogText = 'Безопасная зона. Можно пристыковаться и отдохнуть.';
-            actionButton = '<button class="location-btn" id="location-action">🚀 ПРИСТЫКОВАТЬСЯ</button>';
+            if (isDocked) {
+                dialogText = 'Вы находитесь на станции. Можно отдохнуть или пополнить запасы.';
+                actionButton = `
+                    <button class="location-btn" id="location-rest" style="border-color: #4a9e5a; color: #4a9e5a;">🛏️ ОТДОХНУТЬ</button>
+                    <button class="location-btn" id="location-supply" style="border-color: #d4af37; color: #d4af37;">⛽ ПОПОЛНИТЬ ЗАПАСЫ</button>
+                `;
+            } else {
+                dialogText = 'Безопасная зона. Можно пристыковаться.';
+                actionButton = '<button class="location-btn" id="location-action">🚀 ПРИСТЫКОВАТЬСЯ</button>';
+            }
             break;
             
         case window.LOCATION_TYPES.DRONE:
@@ -315,10 +411,12 @@ function showLocationDialog(location) {
         <div class="location-dialog">
             <div class="location-dialog-content">
                 <div class="location-dialog-title">${location.name}</div>
+                ${dockedStatus ? `<div style="color: #4a9e5a; text-align: center; margin-bottom: 10px;">${dockedStatus}</div>` : ''}
                 <div class="location-dialog-text">${dialogText}</div>
-                <div class="location-dialog-buttons">
+                <div class="location-dialog-buttons" style="flex-wrap: wrap; gap: 10px;">
                     ${actionButton}
                     <button class="location-btn" id="location-close">ЗАКРЫТЬ</button>
+                    ${isDocked ? '<button class="location-btn" id="location-undock" style="border-color: #d06b6b; color: #d06b6b;">🚀 ОТСТЫКОВАТЬСЯ</button>' : ''}
                 </div>
             </div>
         </div>
@@ -329,27 +427,43 @@ function showLocationDialog(location) {
     dialogDiv.className = 'location-dialog-container';
     document.body.appendChild(dialogDiv);
     
-    if (location.type === window.LOCATION_TYPES.DOCK) {
+    if (!isDocked && location.type === window.LOCATION_TYPES.DOCK) {
         document.getElementById('location-action').addEventListener('click', function() {
             dialogDiv.remove();
-            addToScreen(`🚀 Стыковка с ${location.name}...`);
-            // Здесь будет логика стыковки
-            setTimeout(() => {
-                addToScreen('✅ Стыковка завершена. Можно пополнить запасы.');
-                // Восстанавливаем ресурсы
-                window.fuel = Math.min(100, window.fuel + 20);
-                window.oxygen = Math.min(100, window.oxygen + 20);
-                window.battery = Math.min(100, window.battery + 20);
-                updateDisplay();
-            }, 2000);
+            dockToLocation(location);
         });
+    }
+    
+    if (isDocked) {
+        if (document.getElementById('location-rest')) {
+            document.getElementById('location-rest').addEventListener('click', function() {
+                addToScreen('🛏️ Отдых... Восстановление сил');
+                // Можно добавить эффекты отдыха
+            });
+        }
+        
+        if (document.getElementById('location-supply')) {
+            document.getElementById('location-supply').addEventListener('click', function() {
+                addToScreen('⛽ Пополнение запасов');
+                window.fuel = 100;
+                window.oxygen = 100;
+                window.battery = 100;
+                updateDisplay();
+            });
+        }
+        
+        if (document.getElementById('location-undock')) {
+            document.getElementById('location-undock').addEventListener('click', function() {
+                dialogDiv.remove();
+                undock();
+            });
+        }
     }
     
     if (location.type === window.LOCATION_TYPES.DRONE) {
         document.getElementById('location-action').addEventListener('click', function() {
             dialogDiv.remove();
             addToScreen(`🎮 Отправляем дрон для сбора ресурсов в ${location.name}...`);
-            // Здесь будет логика отправки дрона
             setTimeout(() => {
                 const resources = ['Металлолом', 'Урановый стержень', 'Инструменты', 'Еда', 'Вода'];
                 const randomResource = resources[Math.floor(Math.random() * resources.length)];
@@ -375,7 +489,6 @@ function showLocationDialog(location) {
         document.getElementById('location-action').addEventListener('click', function() {
             dialogDiv.remove();
             addToScreen(`⚠️ Вы входите в опасную зону: ${location.name}`);
-            // Здесь будет логика для опасных зон
             const damage = Math.floor(Math.random() * 10) + 5;
             window.hull = Math.max(0, window.hull - damage);
             addToScreen(`💥 Корпус повреждён на ${damage}%`);
@@ -388,18 +501,19 @@ function showLocationDialog(location) {
     });
 }
 
-// Получить расстояние до текущей локации
-function getDistanceToLocation() {
-    if (!window.currentLocation) return Infinity;
+// Добавляем CSS анимации
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes locationPulse {
+        0% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.05); }
+        100% { opacity: 1; transform: scale(1); }
+    }
     
-    const currentTile = window.gameMap[window.playerRow][window.playerCol];
-    const activePoint = currentTile.locations.points[currentTile.locations.activePointIndex];
-    
-    const pointGlobalX = window.playerCol * window.cellSize + activePoint.x;
-    const pointGlobalY = window.playerRow * window.cellSize + activePoint.y;
-    
-    return Math.sqrt(
-        Math.pow(window.globalX - pointGlobalX, 2) + 
-        Math.pow(window.globalY - pointGlobalY, 2)
-    );
-}
+    @keyframes hazardPulse {
+        0% { opacity: 1; transform: scale(1); background-color: #1a1a1a; }
+        50% { opacity: 1; transform: scale(1.1); background-color: #4a1a1a; }
+        100% { opacity: 1; transform: scale(1); background-color: #1a1a1a; }
+    }
+`;
+document.head.appendChild(style);

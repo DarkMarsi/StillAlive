@@ -43,11 +43,82 @@ window.COMMANDS = {
         description: 'Пристыковаться к ближайшей станции',
         usage: 'dock',
         action: function() {
+            if (window.dockedAt) {
+                addToScreen('❌ Корабль уже пристыкован');
+                return;
+            }
             if (window.showLocationButton && window.currentLocation) {
-                showLocationDialog(window.currentLocation);
-                addToScreen(`✅ Стыковка с: ${window.currentLocation.name}`);
+                if (window.currentLocation.type === window.LOCATION_TYPES.DOCK) {
+                    dockToLocation(window.currentLocation);
+                } else {
+                    addToScreen('❌ В этой локации нельзя пристыковаться');
+                }
             } else {
-                addToScreen(`❌ В этом районе нет доступных мест для стыковки`);
+                addToScreen('❌ Нет доступных мест для стыковки');
+            }
+        }
+    },
+    
+    'undock': {
+        name: 'undock',
+        description: 'Отстыковаться от станции',
+        usage: 'undock',
+        action: function() {
+            undock();
+        }
+    },
+    
+    'drone': {
+        name: 'drone',
+        description: 'Отправить дрон для сбора ресурсов',
+        usage: 'drone',
+        action: function() {
+            if (window.dockedAt) {
+                addToScreen('❌ Нельзя использовать дрон во время стыковки');
+                return;
+            }
+            if (window.showLocationButton && window.currentLocation) {
+                if (window.currentLocation.type === window.LOCATION_TYPES.DRONE) {
+                    showLocationDialog(window.currentLocation);
+                } else {
+                    addToScreen('❌ В этой локации нельзя использовать дрон');
+                }
+            } else {
+                addToScreen('❌ Нет доступных локаций для дрона');
+            }
+        }
+    },
+    
+    'examine': {
+        name: 'examine',
+        description: 'Осмотреть текущую локацию',
+        usage: 'examine',
+        action: function() {
+            if (window.dockedAt) {
+                addToScreen(`📍 Пристыкован к: ${window.dockedAt.name}`);
+                addToScreen(`📋 Тип: 🟢 Стыковочная станция`);
+                return;
+            }
+            if (window.showLocationButton && window.currentLocation) {
+                let typeText = '';
+                switch(window.currentLocation.type) {
+                    case window.LOCATION_TYPES.DOCK:
+                        typeText = '🟢 Стыковочная станция';
+                        break;
+                    case window.LOCATION_TYPES.DRONE:
+                        typeText = '🟡 Ресурсная зона';
+                        break;
+                    case window.LOCATION_TYPES.HAZARDOUS:
+                        typeText = '🔴 Опасная зона';
+                        break;
+                    default:
+                        typeText = '⚪ Пустая зона';
+                }
+                addToScreen(`📍 Локация: ${window.currentLocation.name}`);
+                addToScreen(`📋 Тип: ${typeText}`);
+                addToScreen(`📏 Расстояние: ${Math.round(getDistanceToLocation())}м`);
+            } else {
+                addToScreen('❌ Рядом нет локаций');
             }
         }
     },
@@ -57,6 +128,10 @@ window.COMMANDS = {
         description: 'Запустить сканирование',
         usage: 'scan',
         action: function() {
+            if (window.dockedAt) {
+                addToScreen('❌ Нельзя сканировать во время стыковки');
+                return;
+            }
             if (window.sonarOn) {
                 if (typeof scanSurroundings === 'function') {
                     scanSurroundings();
@@ -84,6 +159,9 @@ window.COMMANDS = {
             addToScreen(`  СКОРОСТЬ:  ${window.speed} узлов`);
             addToScreen(`  КУРС:      ${window.shipHeading}°`);
             addToScreen(`  ПОЗИЦИЯ:   ${String.fromCharCode(65 + window.playerCol)}${window.playerRow + 1}`);
+            if (window.dockedAt) {
+                addToScreen(`  СТЫКОВКА:  🟢 ${window.dockedAt.name}`);
+            }
             addToScreen(`╚════════════════════════════════╝`);
         }
     },
@@ -117,6 +195,9 @@ window.COMMANDS = {
             const hours = Math.floor(window.time / 60);
             const minutes = window.time % 60;
             addToScreen(`📅 ДЕНЬ ${window.day} | ВРЕМЯ: ${hours.toString().padStart(2,'0')}:${minutes.toString().padStart(2,'0')}`);
+            if (window.dockedAt) {
+                addToScreen(`⏸️ Время на паузе (стыковка)`);
+            }
         }
     },
     
@@ -138,6 +219,9 @@ window.COMMANDS = {
             addToScreen(`📍 ГЛОБАЛЬНЫЕ: X=${Math.round(window.globalX)}м, Y=${Math.round(window.globalY)}м`);
             addToScreen(`📍 ЛОКАЛЬНЫЕ:  X=${Math.round(window.positionX)}м, Y=${Math.round(window.positionY)}м`);
             addToScreen(`📍 КЛЕТКА:   ${String.fromCharCode(65 + window.playerCol)}${window.playerRow + 1}`);
+            if (window.dockedAt) {
+                addToScreen(`📍 СТЫКОВКА: ${window.dockedAt.name}`);
+            }
         }
     },
     
@@ -146,6 +230,11 @@ window.COMMANDS = {
         description: 'Включить/выключить двигатель',
         usage: 'engine [on/off]',
         action: function(args) {
+            if (window.dockedAt) {
+                addToScreen('❌ Нельзя управлять двигателем во время стыковки');
+                return;
+            }
+            
             if (args.length === 0) {
                 addToScreen(`⚙️ Двигатель ${window.engineOn ? 'ВКЛЮЧЕН' : 'ВЫКЛЮЧЕН'}`);
                 return;
@@ -179,6 +268,11 @@ window.COMMANDS = {
         description: 'Включить/выключить сонар',
         usage: 'sonar [on/off]',
         action: function(args) {
+            if (window.dockedAt) {
+                addToScreen('❌ Нельзя управлять сонаром во время стыковки');
+                return;
+            }
+            
             if (args.length === 0) {
                 addToScreen(`📡 Сонар ${window.sonarOn ? 'ВКЛЮЧЕН' : 'ВЫКЛЮЧЕН'}`);
                 return;
@@ -212,6 +306,11 @@ window.COMMANDS = {
         description: 'Установить или показать текущий курс',
         usage: 'heading [градусы]',
         action: function(args) {
+            if (window.dockedAt) {
+                addToScreen('❌ Нельзя менять курс во время стыковки');
+                return;
+            }
+            
             if (args.length === 0) {
                 addToScreen(`🧭 Текущий курс: ${window.shipHeading}°`);
                 return;
@@ -239,6 +338,11 @@ window.COMMANDS = {
         description: 'Установить или показать текущую скорость',
         usage: 'speed [0-4]',
         action: function(args) {
+            if (window.dockedAt) {
+                addToScreen('❌ Нельзя менять скорость во время стыковки');
+                return;
+            }
+            
             if (args.length === 0) {
                 addToScreen(`⚙️ Текущая скорость: ${window.speed} узлов (положение: ${window.throttleEngine})`);
                 return;
@@ -300,52 +404,6 @@ window.COMMANDS = {
             switchTab('signals');
         }
     },
-
-    'drone': {
-        name: 'drone',
-        description: 'Отправить дрон для сбора ресурсов',
-        usage: 'drone',
-        action: function() {
-            if (window.showLocationButton && window.currentLocation) {
-                if (window.currentLocation.type === window.LOCATION_TYPES.DRONE) {
-                    showLocationDialog(window.currentLocation);
-                } else {
-                    addToScreen('❌ В этой локации нельзя использовать дрон');
-                }
-            } else {
-                addToScreen('❌ Нет доступных локаций для дрона');
-            }
-        }
-    },
-
-    'examine': {
-        name: 'examine',
-        description: 'Осмотреть текущую локацию',
-        usage: 'examine',
-        action: function() {
-            if (window.showLocationButton && window.currentLocation) {
-                let typeText = '';
-                switch(window.currentLocation.type) {
-                    case window.LOCATION_TYPES.DOCK:
-                        typeText = '🟢 Стыковочная станция';
-                        break;
-                    case window.LOCATION_TYPES.DRONE:
-                        typeText = '🟡 Ресурсная зона';
-                        break;
-                    case window.LOCATION_TYPES.HAZARDOUS:
-                        typeText = '🔴 Опасная зона';
-                        break;
-                    default:
-                        typeText = '⚪ Пустая зона';
-                }
-                addToScreen(`📍 Локация: ${window.currentLocation.name}`);
-                addToScreen(`📋 Тип: ${typeText}`);
-                addToScreen(`📏 Расстояние: ${Math.round(getDistanceToLocation())}м`);
-            } else {
-                addToScreen('❌ Рядом нет локаций');
-            }
-        }
-    },
     
     'quit': {
         name: 'quit',
@@ -380,4 +438,3 @@ function processCommand(input) {
         addToScreen(`❌ Команда не найдена: '${cmdName}'. Введите /help для списка команд.`);
     }
 }
-

@@ -487,6 +487,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (gameOver) return;
         if (window.gamePaused) return; // Если игра на паузе - ничего не делаем
 
+            // НОВОЕ: если корабль пристыкован - ничего не тратится
+        if (window.dockedAt) {
+            // Всё на паузе, только обновляем дисплей
+            updateDisplay();
+            return;
+        }
+
         generatorWorking = fuel > 0;
         oxygenGeneratorWorking = battery > 10;
 
