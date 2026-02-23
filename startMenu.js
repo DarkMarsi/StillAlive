@@ -1,7 +1,7 @@
 // startMenu.js - стартовое меню с контрактом
 
 // Переменная для хранения имени игрока
-let playerName = 'ЗАКЛЮЧЕННЫЙ-734';
+window.window.playerName = 'ЗАКЛЮЧЕННЫЙ-734';
 
 // Функция для отображения стартового меню
 function showStartMenu() {
@@ -124,7 +124,7 @@ function showStartMenu() {
     
     // Обновляем имя в реальном времени
     document.getElementById('player-name-input').addEventListener('input', function(e) {
-        playerName = e.target.value.trim() || 'ЗАКЛЮЧЕННЫЙ-734';
+        window.playerName = e.target.value.trim() || 'ЗАКЛЮЧЕННЫЙ-734';
     });
 }
 
@@ -141,7 +141,7 @@ function showContractAccepted() {
             <div class="contract-content" style="text-align: center;">
                 <div class="acceptance-icon">📜✓</div>
                 <p class="contract-paragraph" style="font-size: 18px;">
-                    Заключенный <span style="color: #8bc34a; font-weight: bold;">${playerName}</span>,<br>
+                    Заключенный <span style="color: #8bc34a; font-weight: bold;">${window.playerName}</span>,<br>
                     ваш контракт принят.
                 </p>
                 <p class="contract-paragraph">
@@ -213,10 +213,10 @@ function startGame() {
     // Устанавливаем начальный баланс
     window.credits = 1000;
     
-    console.log('Игра начата с именем:', playerName);
+    console.log('Игра начата с именем:', window.playerName);
     
     if (typeof addToScreen === 'function') {
-        addToScreen(`🔓 КОНТРАКТ ПОДПИСАН, ЗАКЛЮЧЕННЫЙ ${playerName}`);
+        addToScreen(`🔓 КОНТРАКТ ПОДПИСАН, ЗАКЛЮЧЕННЫЙ ${window.playerName}`);
         addToScreen('💀 ДОБРО ПОЖАЛОВАТЬ НА БОРТ "НАУТИЛУСА"');
         addToScreen('Введите /help чтобы посмотреть список команд');
     }

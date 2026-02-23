@@ -256,7 +256,7 @@ function drawMiniInstrument(canvasId, value, min = 0, max = 100, unit = '') {
     ctx.fill();
 }
 
-// Функция рисования компаса (в стиле других мини-приборов)
+// Функция рисования компаса
 function drawMiniCompass() {
     const canvas = document.getElementById('compass-canvas');
     if (!canvas) return;
@@ -269,51 +269,95 @@ function drawMiniCompass() {
     const centerY = canvas.height / 2;
     const radius = Math.min(centerX, centerY) - 3;
     
-    // Внешний круг (как у других приборов)
+    // Внешний круг
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.strokeStyle = '#5f874a';
     ctx.lineWidth = 1;
     ctx.stroke();
     
-    // Рисуем стрелку (как у других приборов)
+    // Рисуем стрелку компаса (как настоящий компас)
+    // Угол в радианах: 0° = север (вверх), 90° = восток (вправо)
+    // В canvas: 0 радиан = вправо, отрицательный угол = вверх
     const angleRad = (window.shipHeading * Math.PI) / 180;
     
-    // Используем ту же логику углов, что и в drawMiniInstrument
-    const startAngle = -Math.PI * 0.8;
-    const endAngle = Math.PI * 0.8;
-    const angleRange = endAngle - startAngle;
-    const valueAngle = startAngle + (window.shipHeading / 360) * angleRange;
-    
+    // Север (N) всегда вверху, стрелка показывает направление взгляда
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
-    const arrowX = centerX + Math.sin(valueAngle) * (radius - 2);
-    const arrowY = centerY - Math.cos(valueAngle) * (radius - 2);
+    
+    // Стрелка смотрит в направлении shipHeading
+    const arrowX = centerX + Math.sin(angleRad) * (radius - 2);
+    const arrowY = centerY - Math.cos(angleRad) * (radius - 2);
+    
     ctx.lineTo(arrowX, arrowY);
-    ctx.strokeStyle = '#b84a4a';
+    ctx.strokeStyle = '#b84a4a'; // Красная стрелка для направления
     ctx.lineWidth = 1.5;
+    ctx.stroke();
+    
+    // Рисуем вторую стрелку (противоположное направление) для красоты
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    const backX = centerX - Math.sin(angleRad) * (radius / 2);
+    const backY = centerY + Math.cos(angleRad) * (radius / 2);
+    ctx.lineTo(backX, backY);
+    ctx.strokeStyle = '#5f874a'; // Зелёная для хвоста
+    ctx.lineWidth = 1;
     ctx.stroke();
     
     // Маленькие метки сторон света
     ctx.fillStyle = '#5f874a';
-    ctx.font = '5px Courier New';
+    ctx.font = '6px Courier New';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     
-    // Север (0°)
-    ctx.fillText('N', centerX, centerY - radius + 5);
-    // Юг (180°)
-    ctx.fillText('S', centerX, centerY + radius - 5);
-    // Запад (270°)
-    ctx.fillText('W', centerX - radius + 5, centerY);
-    // Восток (90°)
-    ctx.fillText('E', centerX + radius - 5, centerY);
+    // Север (0°) - ВВЕРХУ
+    ctx.fillText('N', centerX, centerY - radius + 8);
+    // Юг (180°) - ВНИЗУ
+    ctx.fillText('S', centerX, centerY + radius - 8);
+    // Запад (270°) - СЛЕВА
+    ctx.fillText('W', centerX - radius + 8, centerY);
+    // Восток (90°) - СПРАВА
+    ctx.fillText('E', centerX + radius - 8, centerY);
     
-    // Центральная точка (как у других приборов)
+    // Маленькие риски по краям (как на настоящем компасе)
+    ctx.strokeStyle = '#5f874a';
+    ctx.lineWidth = 0.5;
+    
+    // Северная риска
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - radius);
+    ctx.lineTo(centerX, centerY - radius + 4);
+    ctx.stroke();
+    
+    // Южная риска
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY + radius);
+    ctx.lineTo(centerX, centerY + radius - 4);
+    ctx.stroke();
+    
+    // Западная риска
+    ctx.beginPath();
+    ctx.moveTo(centerX - radius, centerY);
+    ctx.lineTo(centerX - radius + 4, centerY);
+    ctx.stroke();
+    
+    // Восточная риска
+    ctx.beginPath();
+    ctx.moveTo(centerX + radius, centerY);
+    ctx.lineTo(centerX + radius - 4, centerY);
+    ctx.stroke();
+    
+    // Центральная точка
     ctx.fillStyle = '#5f874a';
     ctx.beginPath();
     ctx.arc(centerX, centerY, 2, 0, Math.PI * 2);
     ctx.fill();
+    
+    // Обновляем текстовое значение под компасом
+    const compassValue = document.getElementById('compass-value');
+    if (compassValue) {
+        compassValue.textContent = window.shipHeading + '°';
+    }
 }
 
 // Обновляем все мини-приборы
